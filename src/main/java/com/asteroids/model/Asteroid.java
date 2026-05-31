@@ -1,40 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.asteroids.model;
 
 import java.util.Random;
 
 import com.asteroids.util.PolygonFactory;
 
-/**
- *
- * @author admin
- */
 public class Asteroid extends Character {
 
-    private double rotationalMovement;
+	private double rotationalMovement;
+	private static final Random RANDOM = new Random();
 
-    public Asteroid(int x, int y) {
-        super(new PolygonFactory().createPolygon(), x, y);
+	public Asteroid(int x, int y) {
+		super(PolygonFactory.createPolygon(), x, y);
 
-        Random rnd = new Random();
+		super.getShape().setRotate(RANDOM.nextInt(360));
 
-        super.getCharacter().setRotate(rnd.nextInt(360));
+		int accelerationAmount = 1 + RANDOM.nextInt(10);
+		for (int i = 0; i < accelerationAmount; i++) {
+			accelerate();
+		}
 
-        int accelerationAmount = 1 + rnd.nextInt(10);
-        for (int i = 0; i < accelerationAmount; i++) {
-            accelerate();
-        }
+		this.rotationalMovement = 0.5 - RANDOM.nextDouble();
+	}
 
-        this.rotationalMovement = 0.5 - rnd.nextDouble();
-    }
-
-    @Override
-    public void move() {
-        super.move();
-        super.getCharacter().setRotate(super.getCharacter().getRotate() + rotationalMovement);
-    }
+	@Override
+	public void move() {
+		super.move();
+		super.getShape().setRotate(super.getShape().getRotate() + rotationalMovement);
+	}
 }
