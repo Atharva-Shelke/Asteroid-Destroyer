@@ -19,7 +19,7 @@ public final class Constants {
 
 		public static final int INITIAL_ASTEROIDS = 5;
 		public static final int MAX_PROJECTILES = 3;
-		public static final int SCORE_PER_ASTEROID = 1000;
+		public static final int SCORE_PER_ASTEROID = 1;
 		public static final double ASTEROID_SPAWN_CHANCE = 0.005;
 		public static final int PROJECTILE_SPEED = 3;
 	}
