@@ -1,98 +1,89 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.asteroids.model;
 
-import com.asteroids.AsteroidsApplication;
+import com.asteroids.util.Constants;
 
 import javafx.geometry.Point2D;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 
-/**
- *
- * @author admin
- */
 public abstract class Character {
 
-    private Polygon character;
-    private Point2D movement;
-    private boolean alive;
+	private final Polygon shape;
+	private Point2D movement;
+	private boolean alive;
 
-    public Character(Polygon polygon, int x, int y) {
-        this.character = polygon;
-        this.character.setTranslateX(x);
-        this.character.setTranslateY(y);
+	public Character(Polygon polygon, int x, int y) {
+		this.shape = polygon;
+		this.shape.setTranslateX(x);
+		this.shape.setTranslateY(y);
 
-        this.movement = new Point2D(0, 0);
-        
-        this.alive = true;
-    }
+		this.movement = new Point2D(0, 0);
 
-    public Polygon getCharacter() {
-        return character;
-    }
+		this.alive = true;
+	}
 
-    public void turnLeft() {
-        this.character.setRotate(this.character.getRotate() - 5);
-    }
+	public Polygon getShape() {
+		return shape;
+	}
 
-    public void turnRight() {
-        this.character.setRotate(this.character.getRotate() + 5);
-    }
+	public void turnLeft() {
+		this.shape.setRotate(this.shape.getRotate() + Constants.Turn.LEFT);
+	}
 
-    public void move() {
-        this.character.setTranslateX(this.character.getTranslateX() + this.movement.getX());
-        this.character.setTranslateY(this.character.getTranslateY() + this.movement.getY());
+	public void turnRight() {
+		this.shape.setRotate(this.shape.getRotate() + Constants.Turn.RIGHT);
+	}
 
-        if (this.character.getTranslateX() < 0) {
-            this.character.setTranslateX(this.character.getTranslateX() + AsteroidsApplication.WIDTH);
-        }
+	public void move() {
+		this.shape.setTranslateX(this.shape.getTranslateX() + this.movement.getX());
+		this.shape.setTranslateY(this.shape.getTranslateY() + this.movement.getY());
 
-        if (this.character.getTranslateX() > AsteroidsApplication.WIDTH) {
-            this.character.setTranslateX(this.character.getTranslateX() % AsteroidsApplication.WIDTH);
-        }
+		if (this.shape.getTranslateX() < 0) {
+			this.shape.setTranslateX(this.shape.getTranslateX() + Constants.Size.WIDTH);
+		}
 
-        if (this.character.getTranslateY() < 0) {
-            this.character.setTranslateY(this.character.getTranslateY() + AsteroidsApplication.HEIGHT);
-        }
+		if (this.shape.getTranslateX() > Constants.Size.WIDTH) {
+			this.shape.setTranslateX(this.shape.getTranslateX() % Constants.Size.WIDTH);
+		}
 
-        if (this.character.getTranslateY() > AsteroidsApplication.HEIGHT) {
-            this.character.setTranslateY(this.character.getTranslateY() % AsteroidsApplication.HEIGHT);
-        }
-    }
+		if (this.shape.getTranslateY() < 0) {
+			this.shape.setTranslateY(this.shape.getTranslateY() + Constants.Size.HEIGHT);
+		}
 
-    public void accelerate() {
-        double changeX = Math.cos(Math.toRadians(this.character.getRotate()));
-        double changeY = Math.sin(Math.toRadians(this.character.getRotate()));
+		if (this.shape.getTranslateY() > Constants.Size.HEIGHT) {
+			this.shape.setTranslateY(this.shape.getTranslateY() % Constants.Size.HEIGHT);
+		}
+	}
 
-        changeX *= 0.05;
-        changeY *= 0.05;
+	public void accelerate() {
+		double changeX = Math.cos(Math.toRadians(this.shape.getRotate()));
+		double changeY = Math.sin(Math.toRadians(this.shape.getRotate()));
 
-        this.movement = this.movement.add(changeX, changeY);
-    }
+		changeX *= 0.05;
+		changeY *= 0.05;
 
-    public boolean collide(Character other) {
-        Shape collisionArea = Shape.intersect(this.character, other.getCharacter());
-        return collisionArea.getBoundsInLocal().getWidth() != -1;
-    }
+		this.movement = this.movement.add(changeX, changeY);
+	}
 
-    public Point2D getMovement() {
-        return movement;
-    }
+	public boolean collide(Character other) {
+		Shape collisionArea = Shape.intersect(this.shape, other.getShape());
+		return collisionArea.getBoundsInLocal().getWidth() != -1;
+	}
 
-    public void setMovement(Point2D movement) {
-        this.movement = movement;
-    }
+	public Point2D getMovement() {
+		return movement;
+	}
 
-    public boolean isAlive() {
-        return alive;
-    }
+	public void setMovement(Point2D movement) {
+		this.movement = movement;
+	}
 
-    public void setAlive(boolean alive) {
-        this.alive = alive;
-    }
+	public boolean isAlive() {
+		return alive;
+	}
+
+	public void setAlive(boolean alive) {
+		this.alive = alive;
+	}
 
 }
