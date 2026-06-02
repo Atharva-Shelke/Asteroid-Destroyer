@@ -4,6 +4,8 @@ import java.util.Random;
 
 import com.asteroids.util.PolygonFactory;
 
+import javafx.scene.paint.Color;
+
 public class Asteroid extends Character {
 
 	private double rotationalMovement;
@@ -12,7 +14,10 @@ public class Asteroid extends Character {
 	public Asteroid(int x, int y) {
 		super(PolygonFactory.createPolygon(), x, y);
 
-		super.getShape().setRotate(RANDOM.nextInt(360));
+		getShape().setRotate(RANDOM.nextInt(360));
+		getShape().setFill(Color.SIENNA);
+		getShape().setStroke(Color.SADDLEBROWN);
+		getShape().setStrokeWidth(5);
 
 		int accelerationAmount = 1 + RANDOM.nextInt(10);
 		for (int i = 0; i < accelerationAmount; i++) {
