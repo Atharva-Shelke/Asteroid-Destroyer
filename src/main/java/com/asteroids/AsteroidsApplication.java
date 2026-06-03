@@ -32,6 +32,7 @@ public class AsteroidsApplication extends Application {
 
 	private static final Random RANDOM = new Random();
 	private int points = 0;
+	private boolean paused = false;
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -70,6 +71,10 @@ public class AsteroidsApplication extends Application {
 
 		Scene scene = new Scene(mainScreen);
 
+		VBox pauseBox = pausedMenu(scene);
+
+		pane.getChildren().add(pauseBox);
+
 		scene.setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.SPACE) {
 				if (projectiles.size() < Constants.Value.MAX_PROJECTILES) {
@@ -85,6 +90,11 @@ public class AsteroidsApplication extends Application {
 
 					pane.getChildren().add(projectile.getShape());
 				}
+			} else if (event.getCode() == KeyCode.ESCAPE) {
+
+				paused = !paused;
+				pauseBox.setVisible(paused);
+				return;
 			} else {
 				pressedKeys.put(event.getCode(), Boolean.TRUE);
 			}
@@ -99,6 +109,9 @@ public class AsteroidsApplication extends Application {
 			@Override
 			public void handle(long now) {
 
+				if (paused) {
+					return;
+				}
 				handleInput(ship, pressedKeys);
 
 				moveObjects(ship, asteroids, projectiles);
@@ -232,6 +245,7 @@ public class AsteroidsApplication extends Application {
 		restartButton.setOnAction(event -> {
 			try {
 				points = 0;
+				paused = false;
 				start(stage);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -249,6 +263,26 @@ public class AsteroidsApplication extends Application {
 				.bind(stage.getScene().heightProperty().subtract(gameOverBox.heightProperty()).divide(2));
 
 		return gameOverBox;
+	}
+
+	private VBox pausedMenu(Scene stage) {
+		VBox pausedMenu = new VBox();
+
+		Text pauseText = new Text("PAUSED");
+		pauseText.setStyle("-fx-font-size: 40px; -fx-fill: orange;");
+
+		Text pauseMsg = new Text("Press ESC to resume");
+		pauseMsg.setStyle("-fx-font-size: 20px; -fx-fill: darkblue;");
+
+		pausedMenu.getChildren().addAll(pauseText, pauseMsg);
+		pausedMenu.setAlignment(Pos.CENTER);
+		pausedMenu.setStyle("-fx-background-color: lightblue;" + "-fx-padding: 20;" + "-fx-border-color: blue;"
+				+ "-fx-border-width: 3;");
+		pausedMenu.layoutXProperty().bind(stage.widthProperty().subtract(pausedMenu.widthProperty()).divide(2));
+		pausedMenu.layoutYProperty().bind(stage.heightProperty().subtract(pausedMenu.heightProperty()).divide(2));
+		pausedMenu.setVisible(false);
+
+		return pausedMenu;
 	}
 
 }
