@@ -5,151 +5,250 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.asteroids.model.Asteroid;
 import com.asteroids.model.Projectile;
 import com.asteroids.model.Ship;
+import com.asteroids.util.Constants;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class AsteroidsApplication extends Application {
 
-    public static int WIDTH = 600;
-    public static int HEIGHT = 600;
+	private static final Random RANDOM = new Random();
+	private int points = 0;
 
-//    public static void main(String[] args) {
-//        System.out.println("Hello, world!");
-//        launch(args);
-//    }
+	@Override
+	public void start(Stage stage) throws Exception {
+		BorderPane mainScreen = new BorderPane();
 
-    public static int partsCompleted() {
-        // State how many parts you have completed using the return value of this method
-        return 4;
-    }
+		Pane pane = new Pane();
+		pane.setPrefSize(Constants.Size.WIDTH, Constants.Size.HEIGHT);
+		pane.setStyle("-fx-background-color: black;");
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        Pane pane = new Pane();
-        pane.setPrefSize(WIDTH, HEIGHT);
+		Rectangle clip = new Rectangle(Constants.Size.WIDTH, Constants.Size.HEIGHT);
 
-        Text text = new Text(10, 20, "Points; 0");
-        pane.getChildren().add(text);
+		pane.setClip(clip);
 
-        AtomicInteger points = new AtomicInteger();
+		Text text = new Text("Asteroids Destroyed : 0");
+		HBox hbox = new HBox(text);
+		hbox.setAlignment(Pos.CENTER);
+		hbox.setStyle("-fx-background-color: limegreen;");
+		text.setStyle("-fx-fill: blue;-fx-font-size: 20px;");
 
-        Ship ship = new Ship(WIDTH / 2, HEIGHT / 2);
-        List<Asteroid> asteroids = new ArrayList<>();
-        List<Projectile> projectiles = new ArrayList<>();
+		mainScreen.setTop(hbox);
 
-        for (int i = 0; i < 5; i++) {
-            Random r = new Random();
-            Asteroid a = new Asteroid(r.nextInt(WIDTH), r.nextInt(HEIGHT));
-            asteroids.add(a);
-        }
+		createStarField(pane);
 
-        pane.getChildren().add(ship.getCharacter());
-        asteroids.forEach(asteroid -> pane.getChildren().add(asteroid.getCharacter()));
+		Ship ship = new Ship(Constants.Size.WIDTH / 2, Constants.Size.HEIGHT / 2);
+		List<Asteroid> asteroids = new ArrayList<>();
+		List<Projectile> projectiles = new ArrayList<>();
 
-        Map<KeyCode, Boolean> pressedKeys = new HashMap<>();
+		createInitialAsteroids(asteroids);
 
-        Scene scene = new Scene(pane);
+		pane.getChildren().add(ship.getShape());
+		asteroids.forEach(asteroid -> pane.getChildren().add(asteroid.getShape()));
 
-        scene.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.SPACE) {
-                if (projectiles.size() < 3) {
-                    // we shoot
-                    Projectile projectile = new Projectile((int) ship.getCharacter().getTranslateX(), (int) ship.getCharacter().getTranslateY());
-                    projectile.getCharacter().setRotate(ship.getCharacter().getRotate());
-                    projectiles.add(projectile);
+		Map<KeyCode, Boolean> pressedKeys = new HashMap<>();
 
-                    projectile.accelerate();
-                    projectile.setMovement(projectile.getMovement().normalize().multiply(3));
+		mainScreen.setCenter(pane);
 
-                    pane.getChildren().add(projectile.getCharacter());
-                }
-            } else {
-                pressedKeys.put(event.getCode(), Boolean.TRUE);
-            }
-        });
+		Scene scene = new Scene(mainScreen);
 
-        scene.setOnKeyReleased(event -> {
-            pressedKeys.put(event.getCode(), Boolean.FALSE);
-        });
+		scene.setOnKeyPressed(event -> {
+			if (event.getCode() == KeyCode.SPACE) {
+				if (projectiles.size() < Constants.Value.MAX_PROJECTILES) {
+					// we shoot
+					Projectile projectile = new Projectile((int) ship.getShape().getTranslateX(),
+							(int) ship.getShape().getTranslateY());
+					projectile.getShape().setRotate(ship.getShape().getRotate());
+					projectiles.add(projectile);
 
-        new AnimationTimer() {
+					projectile.accelerate();
+					projectile.setMovement(
+							projectile.getMovement().normalize().multiply(Constants.Value.PROJECTILE_SPEED));
 
-            @Override
-            public void handle(long now) {
-                if (pressedKeys.getOrDefault(KeyCode.LEFT, false)) {
-                    ship.turnLeft();
-                }
+					pane.getChildren().add(projectile.getShape());
+				}
+			} else {
+				pressedKeys.put(event.getCode(), Boolean.TRUE);
+			}
+		});
 
-                if (pressedKeys.getOrDefault(KeyCode.RIGHT, false)) {
-                    ship.turnRight();
-                }
+		scene.setOnKeyReleased(event -> {
+			pressedKeys.put(event.getCode(), Boolean.FALSE);
+		});
 
-                if (pressedKeys.getOrDefault(KeyCode.UP, false)) {
-                    ship.accelerate();
-                }
+		new AnimationTimer() {
 
-                ship.move();
-                asteroids.forEach(asteroid -> asteroid.move());
-                projectiles.forEach(projectile -> projectile.move());
+			@Override
+			public void handle(long now) {
 
-                //ship collides with asteroid check
-                asteroids.forEach(asteroid -> {
-                    if (ship.collide(asteroid)) {
-                        stop();
-                    }
-                });
+				handleInput(ship, pressedKeys);
 
-                //remove asteroids and projectile if projectile hits asteroid
-                projectiles.forEach(projectile -> {
-                    asteroids.forEach(asteroid -> {
-                        if (projectile.collide(asteroid)) {
-                            projectile.setAlive(false);
-                            asteroid.setAlive(false);
-                            text.setText("Points: " + points.addAndGet(1000));
-                        }
-                    });
-                });
+				moveObjects(ship, asteroids, projectiles);
 
-                projectiles.stream()
-                        .filter(projectile -> !projectile.isAlive())
-                        .forEach(projectile -> pane.getChildren().remove(projectile.getCharacter()));
-                projectiles.removeAll(projectiles.stream()
-                        .filter(projectile -> !projectile.isAlive())
-                        .collect(Collectors.toList()));
+				if (shipCollided(ship, asteroids)) {
+					pane.getChildren().add(gameOver(stage));
+					stop();
+				}
 
-                asteroids.stream()
-                        .filter(asteroid -> !asteroid.isAlive())
-                        .forEach(asteroid -> pane.getChildren().remove(asteroid.getCharacter()));
-                asteroids.removeAll(asteroids.stream()
-                        .filter(asteroid -> !asteroid.isAlive())
-                        .collect(Collectors.toList()));
+				handleProjectileCollisions(projectiles, asteroids, text);
 
-                if (Math.random() < 0.005) {
-                    Asteroid asteroid = new Asteroid(WIDTH, HEIGHT);
-                    if (!asteroid.collide(ship)) {
-                        asteroids.add(asteroid);
-                        pane.getChildren().add(asteroid.getCharacter());
-                    }
-                }
+				removeDestroyedProjectiles(projectiles, pane);
 
-            }
-        }.start();
+				removeDestroyedAsteroids(asteroids, pane);
 
-        stage.setTitle("Asteroids!");
-        stage.setScene(scene);
-        stage.show();
-    }
+				spawnAsteroid(ship, asteroids, pane);
+
+			}
+		}.start();
+
+		stage.setTitle("Asteroids!");
+		stage.setScene(scene);
+		stage.show();
+	}
+
+	private void createInitialAsteroids(List<Asteroid> asteroids) {
+		for (int i = 0; i < Constants.Value.INITIAL_ASTEROIDS; i++) {
+			Asteroid a = new Asteroid(RANDOM.nextInt(Constants.Size.WIDTH), RANDOM.nextInt(Constants.Size.HEIGHT));
+			asteroids.add(a);
+		}
+	}
+
+	private void handleInput(Ship ship, Map<KeyCode, Boolean> pressedKeys) {
+
+		if (pressedKeys.getOrDefault(KeyCode.LEFT, false)) {
+			ship.turnLeft();
+		}
+
+		if (pressedKeys.getOrDefault(KeyCode.RIGHT, false)) {
+			ship.turnRight();
+		}
+
+		if (pressedKeys.getOrDefault(KeyCode.UP, false)) {
+			ship.accelerate();
+		}
+	}
+
+	private void moveObjects(Ship ship, List<Asteroid> asteroids, List<Projectile> projectiles) {
+
+		ship.move();
+		asteroids.forEach(Asteroid::move);
+		projectiles.forEach(Projectile::move);
+	}
+
+	private boolean shipCollided(Ship ship, List<Asteroid> asteroids) {
+
+		return asteroids.stream().anyMatch(ship::collide);
+	}
+
+	private void handleProjectileCollisions(List<Projectile> projectiles, List<Asteroid> asteroids, Text scoreText) {
+
+		projectiles.forEach(projectile -> {
+			asteroids.forEach(asteroid -> {
+
+				if (projectile.collide(asteroid)) {
+
+					projectile.setAlive(false);
+					asteroid.setAlive(false);
+					points += Constants.Value.SCORE_PER_ASTEROID;
+
+					scoreText.setText("Asteroids Destroyed : " + points);
+				}
+			});
+		});
+	}
+
+	private void removeDestroyedProjectiles(List<Projectile> projectiles, Pane pane) {
+
+		projectiles.stream().filter(projectile -> !projectile.isAlive())
+				.forEach(projectile -> pane.getChildren().remove(projectile.getShape()));
+
+		projectiles.removeAll(
+				projectiles.stream().filter(projectile -> !projectile.isAlive()).collect(Collectors.toList()));
+	}
+
+	private void removeDestroyedAsteroids(List<Asteroid> asteroids, Pane pane) {
+
+		asteroids.stream().filter(asteroid -> !asteroid.isAlive())
+				.forEach(asteroid -> pane.getChildren().remove(asteroid.getShape()));
+
+		asteroids.removeAll(asteroids.stream().filter(asteroid -> !asteroid.isAlive()).collect(Collectors.toList()));
+	}
+
+	private void spawnAsteroid(Ship ship, List<Asteroid> asteroids, Pane pane) {
+
+		if (RANDOM.nextDouble() < Constants.Value.ASTEROID_SPAWN_CHANCE) {
+
+			Asteroid asteroid = new Asteroid(RANDOM.nextInt(Constants.Size.WIDTH),
+					RANDOM.nextInt(Constants.Size.HEIGHT));
+
+			if (!asteroid.collide(ship)) {
+
+				asteroids.add(asteroid);
+				pane.getChildren().add(asteroid.getShape());
+			}
+		}
+	}
+
+	private void createStarField(Pane pane) {
+		for (int i = 0; i < 100; i++) {
+			Circle star = new Circle(RANDOM.nextInt(Constants.Size.WIDTH), RANDOM.nextInt(Constants.Size.HEIGHT), 1);
+
+			star.setFill(Color.WHITE);
+			star.setOpacity(0.3 + RANDOM.nextDouble() * 0.7);
+
+			pane.getChildren().add(star);
+		}
+	}
+
+	private VBox gameOver(Stage stage) {
+		Text gameOverText = new Text("Game Over");
+		gameOverText.setStyle("-fx-font-size: 40px;-fx-fill: red;");
+
+		Text finalScore = new Text("Score : " + points * 10);
+		finalScore.setStyle("-fx-font-size: 30px;-fx-fill: blue;");
+
+		Button restartButton = new Button("Restart");
+		restartButton.setPrefSize(140, 45);
+		restartButton.setStyle("-fx-font-size: 16px;-fx-background-color: limegreen;");
+
+		restartButton.setOnAction(event -> {
+			try {
+				points = 0;
+				start(stage);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+
+		VBox gameOverBox = new VBox(10);
+		gameOverBox.getChildren().addAll(gameOverText, finalScore, restartButton);
+		gameOverBox.setAlignment(Pos.CENTER);
+		gameOverBox.setStyle("-fx-background-color: gray;" + "-fx-padding: 20;" + "-fx-border-color: black;"
+				+ "-fx-border-width: 1;");
+		gameOverBox.layoutXProperty()
+				.bind(stage.getScene().widthProperty().subtract(gameOverBox.widthProperty()).divide(2));
+		gameOverBox.layoutYProperty()
+				.bind(stage.getScene().heightProperty().subtract(gameOverBox.heightProperty()).divide(2));
+
+		return gameOverBox;
+	}
 
 }
