@@ -26,6 +26,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class AsteroidsApplication extends Application {
@@ -33,6 +34,8 @@ public class AsteroidsApplication extends Application {
 	private static final Random RANDOM = new Random();
 	private int points = 0;
 	private boolean paused = false;
+	private int score = 0;
+	private int highScore = 0;
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -46,11 +49,25 @@ public class AsteroidsApplication extends Application {
 
 		pane.setClip(clip);
 
-		Text text = new Text("Asteroids Destroyed : 0");
-		HBox hbox = new HBox(text);
+		Text textP = new Text("Asteroids Destroyed : 0 ");
+		textP.setStyle("-fx-fill: blue;-fx-font-size: 18px;");
+		textP.setWrappingWidth(200);
+		textP.setTextAlignment(TextAlignment.CENTER);
+
+		Text textS = new Text("  Score : 0 ");
+		textS.setStyle("-fx-fill: blue;-fx-font-size: 18px;");
+		textS.setWrappingWidth(200);
+		textS.setTextAlignment(TextAlignment.LEFT);
+
+		Text textHS = new Text("High Score : " + highScore + "\t");
+		textHS.setStyle("-fx-fill: blue;-fx-font-size: 18px;");
+		textHS.setWrappingWidth(200);
+		textHS.setTextAlignment(TextAlignment.RIGHT);
+
+		HBox hbox = new HBox();
+		hbox.getChildren().addAll(textS, textP, textHS);
 		hbox.setAlignment(Pos.CENTER);
 		hbox.setStyle("-fx-background-color: limegreen;");
-		text.setStyle("-fx-fill: blue;-fx-font-size: 20px;");
 
 		mainScreen.setTop(hbox);
 
@@ -121,7 +138,7 @@ public class AsteroidsApplication extends Application {
 					stop();
 				}
 
-				handleProjectileCollisions(projectiles, asteroids, text);
+				handleProjectileCollisions(projectiles, asteroids, textS, textP, textHS);
 
 				removeDestroyedProjectiles(projectiles, pane);
 
@@ -171,7 +188,8 @@ public class AsteroidsApplication extends Application {
 		return asteroids.stream().anyMatch(ship::collide);
 	}
 
-	private void handleProjectileCollisions(List<Projectile> projectiles, List<Asteroid> asteroids, Text scoreText) {
+	private void handleProjectileCollisions(List<Projectile> projectiles, List<Asteroid> asteroids, Text scoreText,
+			Text pointsText, Text highScoreText) {
 
 		projectiles.forEach(projectile -> {
 			asteroids.forEach(asteroid -> {
@@ -181,8 +199,14 @@ public class AsteroidsApplication extends Application {
 					projectile.setAlive(false);
 					asteroid.setAlive(false);
 					points += Constants.Value.SCORE_PER_ASTEROID;
+					score = points * 10;
+					if (score > highScore) {
+						highScore = score;
+					}
 
-					scoreText.setText("Asteroids Destroyed : " + points);
+					scoreText.setText("  Score : " + score);
+					pointsText.setText("Asteroids Destroyed : " + points);
+					highScoreText.setText("High Score : " + highScore + "\t");
 				}
 			});
 		});
@@ -235,16 +259,21 @@ public class AsteroidsApplication extends Application {
 		Text gameOverText = new Text("Game Over");
 		gameOverText.setStyle("-fx-font-size: 40px;-fx-fill: red;");
 
-		Text finalScore = new Text("Score : " + points * 10);
-		finalScore.setStyle("-fx-font-size: 30px;-fx-fill: blue;");
+		Text finalScore = new Text("Score : " + score);
+		finalScore.setStyle("-fx-font-size: 30px;-fx-fill: white;");
+
+		Text highScoreT = new Text("High Score : " + highScore);
+		highScoreT.setStyle("-fx-font-size: 28px;-fx-fill: gold;");
 
 		Button restartButton = new Button("Restart");
 		restartButton.setPrefSize(140, 45);
-		restartButton.setStyle("-fx-font-size: 16px;-fx-background-color: limegreen;");
+		restartButton.setStyle(
+				"-fx-font-size: 16px;-fx-background-color: limegreen;-fx-border-color: green; -fx-border-width: 2px;");
 
 		restartButton.setOnAction(event -> {
 			try {
 				points = 0;
+				score = 0;
 				paused = false;
 				start(stage);
 			} catch (Exception e) {
@@ -253,10 +282,10 @@ public class AsteroidsApplication extends Application {
 		});
 
 		VBox gameOverBox = new VBox(10);
-		gameOverBox.getChildren().addAll(gameOverText, finalScore, restartButton);
+		gameOverBox.getChildren().addAll(gameOverText, finalScore, highScoreT, restartButton);
 		gameOverBox.setAlignment(Pos.CENTER);
-		gameOverBox.setStyle("-fx-background-color: gray;" + "-fx-padding: 20;" + "-fx-border-color: black;"
-				+ "-fx-border-width: 1;");
+		gameOverBox.setStyle("-fx-background-color: gray;" + "-fx-padding: 20;" + "-fx-border-color: white;"
+				+ "-fx-border-width: 2px;");
 		gameOverBox.layoutXProperty()
 				.bind(stage.getScene().widthProperty().subtract(gameOverBox.widthProperty()).divide(2));
 		gameOverBox.layoutYProperty()
@@ -269,10 +298,10 @@ public class AsteroidsApplication extends Application {
 		VBox pausedMenu = new VBox();
 
 		Text pauseText = new Text("PAUSED");
-		pauseText.setStyle("-fx-font-size: 40px; -fx-fill: orange;");
+		pauseText.setStyle("-fx-font-size: 40px; -fx-fill: darkblue;");
 
 		Text pauseMsg = new Text("Press ESC to resume");
-		pauseMsg.setStyle("-fx-font-size: 20px; -fx-fill: darkblue;");
+		pauseMsg.setStyle("-fx-font-size: 20px; -fx-fill: blue;");
 
 		pausedMenu.getChildren().addAll(pauseText, pauseMsg);
 		pausedMenu.setAlignment(Pos.CENTER);
