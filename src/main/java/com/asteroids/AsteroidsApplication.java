@@ -256,19 +256,26 @@ public class AsteroidsApplication extends Application {
 	}
 
 	private VBox gameOver(Stage stage) {
-		Text gameOverText = new Text("Game Over");
-		gameOverText.setStyle("-fx-font-size: 40px;-fx-fill: red;");
+		Text gameOverText = new Text("SHIP DESTROYED!");
+		gameOverText.setStyle("-fx-font-size: 40px; -fx-fill: red;");
+		
+		Text stats = new Text(
+			    String.format(
+			        "Asteroids Destroyed : %d%n" +
+			        "Score               : %d%n" +
+			        "High Score          : %d",
+			        points,
+			        score,
+			        highScore
+			    )
+			);
 
-		Text finalScore = new Text("Score : " + score);
-		finalScore.setStyle("-fx-font-size: 30px;-fx-fill: white;");
-
-		Text highScoreT = new Text("High Score : " + highScore);
-		highScoreT.setStyle("-fx-font-size: 28px;-fx-fill: gold;");
+			stats.setStyle("-fx-font-size: 28px; -fx-fill: white;");
 
 		Button restartButton = new Button("Restart");
 		restartButton.setPrefSize(140, 45);
 		restartButton.setStyle(
-				"-fx-font-size: 16px;-fx-background-color: limegreen;-fx-border-color: green; -fx-border-width: 2px;");
+				"-fx-font-size: 16px; -fx-background-color: limegreen; -fx-border-color: green; -fx-border-width: 2px;");
 
 		restartButton.setOnAction(event -> {
 			try {
@@ -282,10 +289,13 @@ public class AsteroidsApplication extends Application {
 		});
 
 		VBox gameOverBox = new VBox(10);
-		gameOverBox.getChildren().addAll(gameOverText, finalScore, highScoreT, restartButton);
+		gameOverBox.getChildren().addAll(
+			    gameOverText,
+			    stats,
+			    restartButton
+			);
 		gameOverBox.setAlignment(Pos.CENTER);
-		gameOverBox.setStyle("-fx-background-color: gray;" + "-fx-padding: 20;" + "-fx-border-color: white;"
-				+ "-fx-border-width: 2px;");
+		gameOverBox.setStyle("-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
 		gameOverBox.layoutXProperty()
 				.bind(stage.getScene().widthProperty().subtract(gameOverBox.widthProperty()).divide(2));
 		gameOverBox.layoutYProperty()
@@ -305,8 +315,7 @@ public class AsteroidsApplication extends Application {
 
 		pausedMenu.getChildren().addAll(pauseText, pauseMsg);
 		pausedMenu.setAlignment(Pos.CENTER);
-		pausedMenu.setStyle("-fx-background-color: rgba(30,30,30,0.85);" + "-fx-padding: 25;"
-				+ "-fx-border-color: white;" + "-fx-border-width: 2;");
+		pausedMenu.setStyle("-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
 		pausedMenu.layoutXProperty().bind(stage.widthProperty().subtract(pausedMenu.widthProperty()).divide(2));
 		pausedMenu.layoutYProperty().bind(stage.heightProperty().subtract(pausedMenu.heightProperty()).divide(2));
 		pausedMenu.setVisible(false);
