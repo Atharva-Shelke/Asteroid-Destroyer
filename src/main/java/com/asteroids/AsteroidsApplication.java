@@ -49,17 +49,17 @@ public class AsteroidsApplication extends Application {
 
 		pane.setClip(clip);
 
-		Text textP = new Text("Asteroids Destroyed : 0 ");
+		Text textP = new Text("Asteroids Destroyed : " + points + " ");
 		textP.setStyle("-fx-fill: blue;-fx-font-size: 18px;");
 		textP.setWrappingWidth(200);
 		textP.setTextAlignment(TextAlignment.CENTER);
 
-		Text textS = new Text("  Score : 0 ");
+		Text textS = new Text("  Score : " + score + " ");
 		textS.setStyle("-fx-fill: blue;-fx-font-size: 18px;");
 		textS.setWrappingWidth(200);
 		textS.setTextAlignment(TextAlignment.LEFT);
 
-		Text textHS = new Text("High Score : " + highScore + "\t");
+		Text textHS = new Text("High Score : " + highScore + " \t");
 		textHS.setStyle("-fx-fill: blue;-fx-font-size: 18px;");
 		textHS.setWrappingWidth(200);
 		textHS.setTextAlignment(TextAlignment.RIGHT);
@@ -204,9 +204,9 @@ public class AsteroidsApplication extends Application {
 						highScore = score;
 					}
 
-					scoreText.setText("  Score : " + score);
-					pointsText.setText("Asteroids Destroyed : " + points);
-					highScoreText.setText("High Score : " + highScore + "\t");
+					scoreText.setText("  Score : " + score + " ");
+					pointsText.setText("Asteroids Destroyed : " + points + " ");
+					highScoreText.setText("High Score : " + highScore + " \t");
 				}
 			});
 		});
@@ -298,15 +298,15 @@ public class AsteroidsApplication extends Application {
 		VBox pausedMenu = new VBox();
 
 		Text pauseText = new Text("PAUSED");
-		pauseText.setStyle("-fx-font-size: 40px; -fx-fill: darkblue;");
+		pauseText.setStyle("-fx-font-size: 40px; -fx-fill: yellow;");
 
 		Text pauseMsg = new Text("Press ESC to resume");
-		pauseMsg.setStyle("-fx-font-size: 20px; -fx-fill: blue;");
+		pauseMsg.setStyle("-fx-font-size: 20px; -fx-fill: orange;");
 
 		pausedMenu.getChildren().addAll(pauseText, pauseMsg);
 		pausedMenu.setAlignment(Pos.CENTER);
-		pausedMenu.setStyle("-fx-background-color: lightblue;" + "-fx-padding: 20;" + "-fx-border-color: blue;"
-				+ "-fx-border-width: 3;");
+		pausedMenu.setStyle("-fx-background-color: rgba(30,30,30,0.85);" + "-fx-padding: 25;"
+				+ "-fx-border-color: white;" + "-fx-border-width: 2;");
 		pausedMenu.layoutXProperty().bind(stage.widthProperty().subtract(pausedMenu.widthProperty()).divide(2));
 		pausedMenu.layoutYProperty().bind(stage.heightProperty().subtract(pausedMenu.heightProperty()).divide(2));
 		pausedMenu.setVisible(false);
