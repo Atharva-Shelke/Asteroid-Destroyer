@@ -15,10 +15,12 @@ import com.asteroids.util.Constants;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -49,23 +51,29 @@ public class AsteroidsApplication extends Application {
 
 		pane.setClip(clip);
 
-		Text textP = new Text("Asteroids Destroyed : " + points + " ");
-		textP.setStyle("-fx-fill: blue;-fx-font-size: 18px;");
-		textP.setWrappingWidth(200);
-		textP.setTextAlignment(TextAlignment.CENTER);
+		Text textS = new Text("Score : " + score);
+		Text textP = new Text("Asteroids Destroyed : " + points);
+		Text textHS = new Text("High Score : " + highScore);
+		
+		GridPane statsGrid = new GridPane();
+		statsGrid.setHgap(50);
 
-		Text textS = new Text("  Score : " + score + " ");
-		textS.setStyle("-fx-fill: blue;-fx-font-size: 18px;");
-		textS.setWrappingWidth(200);
-		textS.setTextAlignment(TextAlignment.LEFT);
-
-		Text textHS = new Text("High Score : " + highScore + " \t");
-		textHS.setStyle("-fx-fill: blue;-fx-font-size: 18px;");
-		textHS.setWrappingWidth(200);
-		textHS.setTextAlignment(TextAlignment.RIGHT);
+		statsGrid.add(textS, 0, 0);
+		statsGrid.add(textP, 1, 0);
+		statsGrid.add(textHS, 2, 0);
+		
+		for (Node node : statsGrid.getChildren()) {
+		    if (node instanceof Text) {
+		        ((Text) node).setStyle(
+		            "-fx-font-size: 17px;" +
+		            "-fx-fill: blue;" +
+		            "-fx-font-family: 'Consolas';"
+		        );
+		    }
+		}
 
 		HBox hbox = new HBox();
-		hbox.getChildren().addAll(textS, textP, textHS);
+		hbox.getChildren().addAll(statsGrid);
 		hbox.setAlignment(Pos.CENTER);
 		hbox.setStyle("-fx-background-color: limegreen;");
 
@@ -204,9 +212,9 @@ public class AsteroidsApplication extends Application {
 						highScore = score;
 					}
 
-					scoreText.setText("  Score : " + score + " ");
-					pointsText.setText("Asteroids Destroyed : " + points + " ");
-					highScoreText.setText("High Score : " + highScore + " \t");
+					scoreText.setText("Score : " + score);
+					pointsText.setText("Asteroids Destroyed : " + points);
+					highScoreText.setText("High Score : " + highScore);
 				}
 			});
 		});
@@ -259,23 +267,37 @@ public class AsteroidsApplication extends Application {
 		Text gameOverText = new Text("SHIP DESTROYED!");
 		gameOverText.setStyle("-fx-font-size: 40px; -fx-fill: red;");
 		
-		Text stats = new Text(
-			    String.format(
-			        "Asteroids Destroyed : %d%n" +
-			        "Score               : %d%n" +
-			        "High Score          : %d",
-			        points,
-			        score,
-			        highScore
-			    )
-			);
+		GridPane statsGrid = new GridPane();
+		statsGrid.setHgap(10);
+		statsGrid.setVgap(10);
+		statsGrid.setAlignment(Pos.CENTER);
 
-			stats.setStyle("-fx-font-size: 28px; -fx-fill: white;");
+		statsGrid.add(new Text("Asteroids Destroyed"), 0, 0);
+		statsGrid.add(new Text(":"), 1, 0);
+		statsGrid.add(new Text(String.valueOf(points)), 2, 0);
 
+		statsGrid.add(new Text("Score"), 0, 1);
+		statsGrid.add(new Text(":"), 1, 1);
+		statsGrid.add(new Text(String.valueOf(score)), 2, 1);
+
+		statsGrid.add(new Text("High Score"), 0, 2);
+		statsGrid.add(new Text(":"), 1, 2);
+		statsGrid.add(new Text(String.valueOf(highScore)), 2, 2);
+		
+		for (Node node : statsGrid.getChildren()) {
+		    if (node instanceof Text) {
+		        ((Text) node).setStyle(
+		            "-fx-font-size: 28px;" +
+		            "-fx-fill: white;" +
+		            "-fx-font-family: 'Consolas';"
+		        );
+		    }
+		}
+		
 		Button restartButton = new Button("Restart");
 		restartButton.setPrefSize(140, 45);
 		restartButton.setStyle(
-				"-fx-font-size: 16px; -fx-background-color: limegreen; -fx-border-color: green; -fx-border-width: 2px;");
+				"-fx-font-size: 16px; -fx-background-color: limegreen; -fx-border-color: green; -fx-border-width: 2px; -fx-font-family: 'Consolas';");
 
 		restartButton.setOnAction(event -> {
 			try {
@@ -291,7 +313,7 @@ public class AsteroidsApplication extends Application {
 		VBox gameOverBox = new VBox(10);
 		gameOverBox.getChildren().addAll(
 			    gameOverText,
-			    stats,
+			    statsGrid,
 			    restartButton
 			);
 		gameOverBox.setAlignment(Pos.CENTER);
@@ -299,7 +321,7 @@ public class AsteroidsApplication extends Application {
 		gameOverBox.layoutXProperty()
 				.bind(stage.getScene().widthProperty().subtract(gameOverBox.widthProperty()).divide(2));
 		gameOverBox.layoutYProperty()
-				.bind(stage.getScene().heightProperty().subtract(gameOverBox.heightProperty()).divide(2));
+				.bind(stage.getScene().heightProperty().subtract(gameOverBox.heightProperty()).divide(2).subtract(10));
 
 		return gameOverBox;
 	}
@@ -307,17 +329,17 @@ public class AsteroidsApplication extends Application {
 	private VBox pausedMenu(Scene stage) {
 		VBox pausedMenu = new VBox();
 
-		Text pauseText = new Text("PAUSED");
-		pauseText.setStyle("-fx-font-size: 40px; -fx-fill: yellow;");
+		Text pauseText = new Text("Pilot on a Break");
+		pauseText.setStyle("-fx-font-size: 40px; -fx-fill: yellow; -fx-font-family: 'Consolas';");
 
 		Text pauseMsg = new Text("Press ESC to resume");
-		pauseMsg.setStyle("-fx-font-size: 20px; -fx-fill: orange;");
+		pauseMsg.setStyle("-fx-font-size: 20px; -fx-fill: orange; -fx-font-family: 'Consolas';");
 
 		pausedMenu.getChildren().addAll(pauseText, pauseMsg);
 		pausedMenu.setAlignment(Pos.CENTER);
 		pausedMenu.setStyle("-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
 		pausedMenu.layoutXProperty().bind(stage.widthProperty().subtract(pausedMenu.widthProperty()).divide(2));
-		pausedMenu.layoutYProperty().bind(stage.heightProperty().subtract(pausedMenu.heightProperty()).divide(2));
+		pausedMenu.layoutYProperty().bind(stage.heightProperty().subtract(pausedMenu.heightProperty()).divide(2).subtract(10));
 		pausedMenu.setVisible(false);
 
 		return pausedMenu;
