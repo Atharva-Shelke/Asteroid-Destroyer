@@ -1,5 +1,7 @@
 package com.asteroids;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +39,7 @@ public class AsteroidsApplication extends Application {
 	private int points = 0;
 	private boolean paused = false;
 	private int score = 0;
-	private int highScore = 0;
+	private int highScore = loadHighScore();
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -54,22 +56,18 @@ public class AsteroidsApplication extends Application {
 		Text textS = new Text("Score : " + score);
 		Text textP = new Text("Asteroids Destroyed : " + points);
 		Text textHS = new Text("High Score : " + highScore);
-		
+
 		GridPane statsGrid = new GridPane();
 		statsGrid.setHgap(50);
 
 		statsGrid.add(textS, 0, 0);
 		statsGrid.add(textP, 1, 0);
 		statsGrid.add(textHS, 2, 0);
-		
+
 		for (Node node : statsGrid.getChildren()) {
-		    if (node instanceof Text) {
-		        ((Text) node).setStyle(
-		            "-fx-font-size: 17px;" +
-		            "-fx-fill: blue;" +
-		            "-fx-font-family: 'Consolas';"
-		        );
-		    }
+			if (node instanceof Text) {
+				((Text) node).setStyle("-fx-font-size: 17px;" + "-fx-fill: blue;" + "-fx-font-family: 'Consolas';");
+			}
 		}
 
 		HBox hbox = new HBox();
@@ -210,6 +208,7 @@ public class AsteroidsApplication extends Application {
 					score = points * 10;
 					if (score > highScore) {
 						highScore = score;
+						saveHighScore(highScore);
 					}
 
 					scoreText.setText("Score : " + score);
@@ -266,7 +265,7 @@ public class AsteroidsApplication extends Application {
 	private VBox gameOver(Stage stage) {
 		Text gameOverText = new Text("SHIP DESTROYED!");
 		gameOverText.setStyle("-fx-font-size: 40px; -fx-fill: red;");
-		
+
 		GridPane statsGrid = new GridPane();
 		statsGrid.setHgap(10);
 		statsGrid.setVgap(10);
@@ -283,17 +282,13 @@ public class AsteroidsApplication extends Application {
 		statsGrid.add(new Text("High Score"), 0, 2);
 		statsGrid.add(new Text(":"), 1, 2);
 		statsGrid.add(new Text(String.valueOf(highScore)), 2, 2);
-		
+
 		for (Node node : statsGrid.getChildren()) {
-		    if (node instanceof Text) {
-		        ((Text) node).setStyle(
-		            "-fx-font-size: 28px;" +
-		            "-fx-fill: white;" +
-		            "-fx-font-family: 'Consolas';"
-		        );
-		    }
+			if (node instanceof Text) {
+				((Text) node).setStyle("-fx-font-size: 28px;" + "-fx-fill: white;" + "-fx-font-family: 'Consolas';");
+			}
 		}
-		
+
 		Button restartButton = new Button("Restart");
 		restartButton.setPrefSize(140, 45);
 		restartButton.setStyle(
@@ -311,13 +306,10 @@ public class AsteroidsApplication extends Application {
 		});
 
 		VBox gameOverBox = new VBox(10);
-		gameOverBox.getChildren().addAll(
-			    gameOverText,
-			    statsGrid,
-			    restartButton
-			);
+		gameOverBox.getChildren().addAll(gameOverText, statsGrid, restartButton);
 		gameOverBox.setAlignment(Pos.CENTER);
-		gameOverBox.setStyle("-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
+		gameOverBox.setStyle(
+				"-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
 		gameOverBox.layoutXProperty()
 				.bind(stage.getScene().widthProperty().subtract(gameOverBox.widthProperty()).divide(2));
 		gameOverBox.layoutYProperty()
@@ -337,12 +329,30 @@ public class AsteroidsApplication extends Application {
 
 		pausedMenu.getChildren().addAll(pauseText, pauseMsg);
 		pausedMenu.setAlignment(Pos.CENTER);
-		pausedMenu.setStyle("-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
+		pausedMenu.setStyle(
+				"-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
 		pausedMenu.layoutXProperty().bind(stage.widthProperty().subtract(pausedMenu.widthProperty()).divide(2));
-		pausedMenu.layoutYProperty().bind(stage.heightProperty().subtract(pausedMenu.heightProperty()).divide(2).subtract(10));
+		pausedMenu.layoutYProperty()
+				.bind(stage.heightProperty().subtract(pausedMenu.heightProperty()).divide(2).subtract(10));
 		pausedMenu.setVisible(false);
 
 		return pausedMenu;
+	}
+
+	private int loadHighScore() {
+		try {
+			return Integer.parseInt(Files.readString(Path.of("highscore.txt")));
+		} catch (Exception e) {
+			return 0;
+		}
+	}
+
+	private void saveHighScore(int highScore) {
+		try {
+			Files.writeString(Path.of("highscore.txt"), String.valueOf(highScore));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
