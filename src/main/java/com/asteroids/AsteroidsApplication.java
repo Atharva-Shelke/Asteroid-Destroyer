@@ -13,6 +13,7 @@ import com.asteroids.model.Asteroid;
 import com.asteroids.model.Projectile;
 import com.asteroids.model.Ship;
 import com.asteroids.util.Constants;
+import com.asteroids.util.SoundPlayer;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -43,6 +44,7 @@ public class AsteroidsApplication extends Application {
 
 	@Override
 	public void start(Stage stage) throws Exception {
+
 		BorderPane mainScreen = new BorderPane();
 
 		Pane pane = new Pane();
@@ -107,6 +109,8 @@ public class AsteroidsApplication extends Application {
 					projectile.getShape().setRotate(ship.getShape().getRotate());
 					projectiles.add(projectile);
 
+					SoundPlayer.playShoot();
+
 					projectile.accelerate();
 					projectile.setMovement(
 							projectile.getMovement().normalize().multiply(Constants.Value.PROJECTILE_SPEED));
@@ -140,6 +144,7 @@ public class AsteroidsApplication extends Application {
 				moveObjects(ship, asteroids, projectiles);
 
 				if (shipCollided(ship, asteroids)) {
+					SoundPlayer.playGameOver();
 					pane.getChildren().add(gameOver(stage));
 					stop();
 				}
@@ -201,6 +206,8 @@ public class AsteroidsApplication extends Application {
 			asteroids.forEach(asteroid -> {
 
 				if (projectile.collide(asteroid)) {
+
+					SoundPlayer.playExplosion();
 
 					projectile.setAlive(false);
 					asteroid.setAlive(false);
