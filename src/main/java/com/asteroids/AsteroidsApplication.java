@@ -31,7 +31,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 public class AsteroidsApplication extends Application {
@@ -41,6 +40,7 @@ public class AsteroidsApplication extends Application {
 	private boolean paused = false;
 	private int score = 0;
 	private int highScore = loadHighScore();
+	private int lives = 3;
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -55,25 +55,27 @@ public class AsteroidsApplication extends Application {
 
 		pane.setClip(clip);
 
-		Text textS = new Text("Score : " + score);
-		Text textP = new Text("Asteroids Destroyed : " + points);
-		Text textHS = new Text("High Score : " + highScore);
+		Text textS = new Text("Score:" + score);
+		Text textP = new Text("Asteroids Shot:" + points);
+		Text textL = new Text("Lives:" + lives);
+		Text textHS = new Text("High Score:" + highScore);
 
-		GridPane statsGrid = new GridPane();
-		statsGrid.setHgap(50);
+		GridPane hud = new GridPane();
+		hud.setHgap(20);
 
-		statsGrid.add(textS, 0, 0);
-		statsGrid.add(textP, 1, 0);
-		statsGrid.add(textHS, 2, 0);
+		hud.add(textS, 0, 0);
+		hud.add(textP, 1, 0);
+		hud.add(textL, 2, 0);
+		hud.add(textHS, 3, 0);
 
-		for (Node node : statsGrid.getChildren()) {
+		for (Node node : hud.getChildren()) {
 			if (node instanceof Text) {
 				((Text) node).setStyle("-fx-font-size: 17px;" + "-fx-fill: blue;" + "-fx-font-family: 'Consolas';");
 			}
 		}
 
 		HBox hbox = new HBox();
-		hbox.getChildren().addAll(statsGrid);
+		hbox.getChildren().addAll(hud);
 		hbox.setAlignment(Pos.CENTER);
 		hbox.setStyle("-fx-background-color: limegreen;");
 
@@ -144,12 +146,19 @@ public class AsteroidsApplication extends Application {
 				moveObjects(ship, asteroids, projectiles);
 
 				if (shipCollided(ship, asteroids)) {
-					SoundPlayer.playGameOver();
-					pane.getChildren().add(gameOver(stage));
-					stop();
+					lives--;
+					textL.setText("Lives:" + lives);
+
+					if (lives <= 0) {
+						SoundPlayer.playGameOver();
+						stop();
+						pane.getChildren().add(gameOver(stage));
+					} else {
+						respawnShip(ship);
+					}
 				}
 
-				handleProjectileCollisions(projectiles, asteroids, textS, textP, textHS);
+				handleProjectileCollisions(projectiles, asteroids, textS, textP, textL, textHS);
 
 				removeDestroyedProjectiles(projectiles, pane);
 
@@ -200,7 +209,7 @@ public class AsteroidsApplication extends Application {
 	}
 
 	private void handleProjectileCollisions(List<Projectile> projectiles, List<Asteroid> asteroids, Text scoreText,
-			Text pointsText, Text highScoreText) {
+			Text pointsText, Text livesText, Text highScoreText) {
 
 		projectiles.forEach(projectile -> {
 			asteroids.forEach(asteroid -> {
@@ -211,16 +220,18 @@ public class AsteroidsApplication extends Application {
 
 					projectile.setAlive(false);
 					asteroid.setAlive(false);
-					points += Constants.Value.SCORE_PER_ASTEROID;
-					score = points * 10;
+					points++;
+					score += Constants.Value.SCORE_PER_ASTEROID;
+
 					if (score > highScore) {
 						highScore = score;
 						saveHighScore(highScore);
 					}
 
-					scoreText.setText("Score : " + score);
-					pointsText.setText("Asteroids Destroyed : " + points);
-					highScoreText.setText("High Score : " + highScore);
+					scoreText.setText("Score:" + score);
+					pointsText.setText("Asteroids Shot:" + points);
+					livesText.setText("Lives:" + lives);
+					highScoreText.setText("High Score:" + highScore);
 				}
 			});
 		});
@@ -325,7 +336,7 @@ public class AsteroidsApplication extends Application {
 		return gameOverBox;
 	}
 
-	private VBox pausedMenu(Scene stage) {
+	private VBox pausedMenu(Scene scene) {
 		VBox pausedMenu = new VBox();
 
 		Text pauseText = new Text("Pilot on a Break");
@@ -338,9 +349,9 @@ public class AsteroidsApplication extends Application {
 		pausedMenu.setAlignment(Pos.CENTER);
 		pausedMenu.setStyle(
 				"-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
-		pausedMenu.layoutXProperty().bind(stage.widthProperty().subtract(pausedMenu.widthProperty()).divide(2));
+		pausedMenu.layoutXProperty().bind(scene.widthProperty().subtract(pausedMenu.widthProperty()).divide(2));
 		pausedMenu.layoutYProperty()
-				.bind(stage.heightProperty().subtract(pausedMenu.heightProperty()).divide(2).subtract(10));
+				.bind(scene.heightProperty().subtract(pausedMenu.heightProperty()).divide(2).subtract(10));
 		pausedMenu.setVisible(false);
 
 		return pausedMenu;
@@ -360,6 +371,16 @@ public class AsteroidsApplication extends Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void respawnShip(Ship ship) {
+
+		ship.getShape().setTranslateX(Constants.Size.WIDTH / 2);
+
+		ship.getShape().setTranslateY(Constants.Size.HEIGHT / 2);
+
+		ship.getShape().setRotate(0);
+
 	}
 
 }
