@@ -17,6 +17,7 @@ import com.asteroids.util.SoundPlayer;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -42,6 +43,7 @@ public class AsteroidsApplication extends Application {
 	private int highScore = loadHighScore();
 	private int lives = 3;
 	private Ship ship;
+	private int invulnerabilityFrames = 120;
 	private List<Asteroid> asteroids;
 	private List<Projectile> projectiles;
 	private Pane pane;
@@ -97,7 +99,7 @@ public class AsteroidsApplication extends Application {
 		projectiles = new ArrayList<>();
 
 		pane.getChildren().add(ship.getShape());
-		
+
 		createInitialAsteroids(asteroids);
 
 		Map<KeyCode, Boolean> pressedKeys = new HashMap<>();
@@ -149,22 +151,28 @@ public class AsteroidsApplication extends Application {
 				if (paused) {
 					return;
 				}
+
+				if (invulnerabilityFrames > 0) {
+					ship.getShape().setOpacity(0.4);
+					invulnerabilityFrames--;
+				} else {
+					ship.getShape().setOpacity(1.0);
+				}
+
 				handleInput(ship, pressedKeys);
 
 				moveObjects(ship, asteroids, projectiles);
 
-				if (shipCollided(ship, asteroids)) {
+				if (invulnerabilityFrames <= 0 && shipCollided(ship, asteroids)) {
+					paused = true;
 					lives--;
 					textL.setText("Lives:" + lives);
 
 					if (lives <= 0) {
 						SoundPlayer.playGameOver();
-//						stop();
-						paused =true;
-						pane.getChildren().add(shipDestroyed(stage,pane));
+						pane.getChildren().add(shipDestroyed(stage, pane));
 					} else {
-						paused = true;
-						pane.getChildren().add(shipDestroyed(stage,pane));
+						pane.getChildren().add(shipDestroyed(stage, pane));
 					}
 				}
 
@@ -283,10 +291,8 @@ public class AsteroidsApplication extends Application {
 	private void createStarField(Pane pane) {
 		for (int i = 0; i < 100; i++) {
 			Circle star = new Circle(RANDOM.nextInt(Constants.Size.WIDTH), RANDOM.nextInt(Constants.Size.HEIGHT), 1);
-
 			star.setFill(Color.WHITE);
 			star.setOpacity(0.3 + RANDOM.nextDouble() * 0.7);
-
 			pane.getChildren().add(star);
 		}
 	}
@@ -330,11 +336,9 @@ public class AsteroidsApplication extends Application {
 				"-fx-font-size: 16px; -fx-background-color: limegreen; -fx-border-color: green; -fx-border-width: 2px; -fx-font-family: 'Consolas';");
 
 		respawnButton.setOnAction(event -> {
-
 			respawnShip();
-
 			pane.getChildren().remove(shipDestroyedBox);
-
+			invulnerabilityFrames = 120;
 			paused = false;
 		});
 
@@ -344,8 +348,6 @@ public class AsteroidsApplication extends Application {
 				"-fx-font-size: 16px; -fx-background-color: limegreen; -fx-border-color: green; -fx-border-width: 2px; -fx-font-family: 'Consolas';");
 
 		restartButton.setOnAction(event -> {
-			
-			
 			resetGame();
 		});
 
@@ -409,32 +411,32 @@ public class AsteroidsApplication extends Application {
 
 		ship.getShape().setRotate(0);
 
+		ship.setMovement(new Point2D(0.5, 0));
+
 	}
-	
+
 	private void resetGame() {
 		pane.getChildren().remove(shipDestroyedBox);
-		 asteroids.forEach(a ->
-	        pane.getChildren().remove(a.getShape()));
 
-	    projectiles.forEach(p ->
-	        pane.getChildren().remove(p.getShape()));
+		projectiles.forEach(p -> pane.getChildren().remove(p.getShape()));
+		projectiles.clear();
 
+		asteroids.forEach(a -> pane.getChildren().remove(a.getShape()));
 		asteroids.clear();
-	    projectiles.clear();
 
-	    createInitialAsteroids(asteroids);
+		createInitialAsteroids(asteroids);
 
-	    points = 0;
-	    score = 0;
-	    lives = 3;
-	    
-	    textS.setText("Score:" + score);
+		points = 0;
+		score = 0;
+		lives = 3;
+
+		textS.setText("Score:" + score);
 		textP.setText("Asteroids Shot:" + points);
-		textL.setText("Lives:" + lives);	    
+		textL.setText("Lives:" + lives);
 
-	    respawnShip();
-	    paused = false;
-	    
+		respawnShip();
+		paused = false;
+
 	}
 
 }
