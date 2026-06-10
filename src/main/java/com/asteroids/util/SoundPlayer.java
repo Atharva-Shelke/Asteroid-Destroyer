@@ -8,7 +8,6 @@ public final class SoundPlayer {
 	}
 
 	private static final AudioClip SHOOT = new AudioClip(
-			
 			SoundPlayer.class.getResource("/sounds/shoot.wav").toExternalForm());
 
 	private static final AudioClip EXPLOSION = new AudioClip(
@@ -17,8 +16,16 @@ public final class SoundPlayer {
 	private static final AudioClip GAME_OVER = new AudioClip(
 			SoundPlayer.class.getResource("/sounds/gameover.wav").toExternalForm());
 
-	public static void playShoot() {
+	private static final AudioClip CRASH = new AudioClip(
+			SoundPlayer.class.getResource("/sounds/crash.wav").toExternalForm());
 
+	private static final AudioClip PAUSE = new AudioClip(
+			SoundPlayer.class.getResource("/sounds/pause.wav").toExternalForm());
+
+	private static final AudioClip PLAY = new AudioClip(
+			SoundPlayer.class.getResource("/sounds/play.wav").toExternalForm());
+
+	public static void playShoot() {
 		SHOOT.play();
 	}
 
@@ -28,5 +35,17 @@ public final class SoundPlayer {
 
 	public static void playGameOver() {
 		GAME_OVER.play();
+	}
+
+	public static void playCrash() {
+		CRASH.play();
+	}
+	
+	public static void playPause() {
+		PAUSE.play();
+	}
+	
+	public static void play() {
+		PLAY.play();
 	}
 }
