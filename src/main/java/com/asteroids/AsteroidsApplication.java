@@ -133,6 +133,12 @@ public class AsteroidsApplication extends Application {
 
 				paused = !paused;
 				pauseBox.setVisible(paused);
+				pauseBox.toFront();
+				if (paused) {
+					SoundPlayer.playPause();
+				} else {
+					SoundPlayer.play();
+				}
 				return;
 			} else {
 				pressedKeys.put(event.getCode(), Boolean.TRUE);
@@ -172,6 +178,7 @@ public class AsteroidsApplication extends Application {
 						SoundPlayer.playGameOver();
 						pane.getChildren().add(shipDestroyed(stage, pane));
 					} else {
+						SoundPlayer.playCrash();
 						pane.getChildren().add(shipDestroyed(stage, pane));
 					}
 				}
@@ -186,6 +193,8 @@ public class AsteroidsApplication extends Application {
 
 			}
 		}.start();
+
+		SoundPlayer.play();
 
 		stage.setTitle("Asteroids!");
 		stage.setScene(scene);
@@ -339,6 +348,7 @@ public class AsteroidsApplication extends Application {
 			respawnShip();
 			pane.getChildren().remove(shipDestroyedBox);
 			invulnerabilityFrames = 120;
+			SoundPlayer.play();
 			paused = false;
 		});
 
@@ -436,6 +446,7 @@ public class AsteroidsApplication extends Application {
 
 		respawnShip();
 		paused = false;
+		SoundPlayer.play();
 
 	}
 
