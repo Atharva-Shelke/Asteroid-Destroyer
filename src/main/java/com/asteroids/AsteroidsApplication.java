@@ -52,6 +52,7 @@ public class AsteroidsApplication extends Application {
 	private Text textP;
 	private Text textL;
 	private Text textHS;
+	private int level = 1;
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -251,6 +252,10 @@ public class AsteroidsApplication extends Application {
 					points++;
 					score += Constants.Value.SCORE_PER_ASTEROID;
 
+					int previousLevel = level;
+
+					level = (points / 10) + 1;
+
 					if (score > highScore) {
 						highScore = score;
 						saveHighScore(highScore);
@@ -284,7 +289,8 @@ public class AsteroidsApplication extends Application {
 
 	private void spawnAsteroid(Ship ship, List<Asteroid> asteroids, Pane pane) {
 
-		if (RANDOM.nextDouble() < Constants.Value.ASTEROID_SPAWN_CHANCE) {
+		double spawnChance = Constants.Value.ASTEROID_SPAWN_CHANCE + ((level - 1) * 0.002);
+		if (RANDOM.nextDouble() < spawnChance) {
 
 			Asteroid asteroid = new Asteroid(RANDOM.nextInt(Constants.Size.WIDTH),
 					RANDOM.nextInt(Constants.Size.HEIGHT));
@@ -439,6 +445,7 @@ public class AsteroidsApplication extends Application {
 		points = 0;
 		score = 0;
 		lives = 3;
+		level = 1;
 
 		textS.setText("Score:" + score);
 		textP.setText("Asteroids Shot:" + points);
