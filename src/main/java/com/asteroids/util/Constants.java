@@ -22,6 +22,7 @@ public final class Constants {
 		public static final int SCORE_PER_ASTEROID = 10;
 		public static final double ASTEROID_SPAWN_CHANCE = 0.005;
 		public static final int PROJECTILE_SPEED = 3;
+		public static final int INVULNERABILITY_FRAMES = 120;
 	}
 
 	public static final class Turn {
