@@ -43,7 +43,7 @@ public class AsteroidsApplication extends Application {
 	private int highScore = loadHighScore();
 	private int lives = 3;
 	private Ship ship;
-	private int invulnerabilityFrames = 120;
+	private int invulnerabilityFrames = Constants.Value.INVULNERABILITY_FRAMES;
 	private List<Asteroid> asteroids;
 	private List<Projectile> projectiles;
 	private Pane pane;
@@ -199,6 +199,7 @@ public class AsteroidsApplication extends Application {
 
 		stage.setTitle("Asteroids!");
 		stage.setScene(scene);
+		stage.setResizable(false);
 		stage.show();
 	}
 
@@ -295,9 +296,12 @@ public class AsteroidsApplication extends Application {
 			Asteroid asteroid = new Asteroid(RANDOM.nextInt(Constants.Size.WIDTH),
 					RANDOM.nextInt(Constants.Size.HEIGHT));
 
+			double speedMultiplier = Math.min(2.0, 1.0 + ((level - 1) * 0.15));
+
 			if (!asteroid.collide(ship)) {
 
 				asteroids.add(asteroid);
+				asteroid.setMovement(asteroid.getMovement().multiply(speedMultiplier));
 				pane.getChildren().add(asteroid.getShape());
 			}
 		}
@@ -428,6 +432,8 @@ public class AsteroidsApplication extends Application {
 		ship.getShape().setRotate(0);
 
 		ship.setMovement(new Point2D(0.5, 0));
+
+		invulnerabilityFrames = Constants.Value.INVULNERABILITY_FRAMES;
 
 	}
 
