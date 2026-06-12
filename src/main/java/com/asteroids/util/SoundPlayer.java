@@ -25,6 +25,9 @@ public final class SoundPlayer {
 	private static final AudioClip PLAY = new AudioClip(
 			SoundPlayer.class.getResource("/sounds/play.wav").toExternalForm());
 
+	private static final AudioClip LEVEL_UP = new AudioClip(
+			SoundPlayer.class.getResource("/sounds/levelup.wav").toExternalForm());
+
 	public static void playShoot() {
 		SHOOT.play();
 	}
@@ -49,4 +52,7 @@ public final class SoundPlayer {
 		PLAY.play();
 	}
 
+	public static void levelUp() {
+		LEVEL_UP.play();
+	}
 }
