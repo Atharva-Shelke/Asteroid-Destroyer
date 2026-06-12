@@ -20,7 +20,7 @@ public final class SoundPlayer {
 			SoundPlayer.class.getResource("/sounds/crash.wav").toExternalForm());
 
 	private static final AudioClip PAUSE = new AudioClip(
-			SoundPlayer.class.getResource("/sounds/pause.wav").toExternalForm());
+			SoundPlayer.class.getResource("/sounds/pause.mp3").toExternalForm());
 
 	private static final AudioClip PLAY = new AudioClip(
 			SoundPlayer.class.getResource("/sounds/play.wav").toExternalForm());
@@ -40,12 +40,13 @@ public final class SoundPlayer {
 	public static void playCrash() {
 		CRASH.play();
 	}
-	
+
 	public static void playPause() {
 		PAUSE.play();
 	}
-	
+
 	public static void play() {
 		PLAY.play();
 	}
+
 }
