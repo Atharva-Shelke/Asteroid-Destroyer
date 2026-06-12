@@ -53,6 +53,7 @@ public class AsteroidsApplication extends Application {
 	private Text textL;
 	private Text textHS;
 	private int level = 1;
+	private Text textLevel;
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -71,6 +72,7 @@ public class AsteroidsApplication extends Application {
 		textP = new Text("Asteroids Shot:" + points);
 		textL = new Text("Lives:" + lives);
 		textHS = new Text("High Score:" + highScore);
+		textLevel = new Text("Level:" + level);
 
 		GridPane hud = new GridPane();
 		hud.setHgap(20);
@@ -78,7 +80,8 @@ public class AsteroidsApplication extends Application {
 		hud.add(textS, 0, 0);
 		hud.add(textP, 1, 0);
 		hud.add(textL, 2, 0);
-		hud.add(textHS, 3, 0);
+		hud.add(textHS, 4, 0);
+		hud.add(textLevel, 3, 0);
 
 		for (Node node : hud.getChildren()) {
 			if (node instanceof Text) {
@@ -184,7 +187,7 @@ public class AsteroidsApplication extends Application {
 					}
 				}
 
-				handleProjectileCollisions(projectiles, asteroids, textS, textP, textL, textHS);
+				handleProjectileCollisions(projectiles, asteroids, textS, textP, textL, textHS, textLevel);
 
 				removeDestroyedProjectiles(projectiles, pane);
 
@@ -239,7 +242,7 @@ public class AsteroidsApplication extends Application {
 	}
 
 	private void handleProjectileCollisions(List<Projectile> projectiles, List<Asteroid> asteroids, Text scoreText,
-			Text pointsText, Text livesText, Text highScoreText) {
+			Text pointsText, Text livesText, Text highScoreText, Text textLevel) {
 
 		projectiles.forEach(projectile -> {
 			asteroids.forEach(asteroid -> {
@@ -253,8 +256,6 @@ public class AsteroidsApplication extends Application {
 					points++;
 					score += Constants.Value.SCORE_PER_ASTEROID;
 
-					int previousLevel = level;
-
 					level = (points / 10) + 1;
 
 					if (score > highScore) {
@@ -266,6 +267,7 @@ public class AsteroidsApplication extends Application {
 					pointsText.setText("Asteroids Shot:" + points);
 					livesText.setText("Lives:" + lives);
 					highScoreText.setText("High Score:" + highScore);
+					textLevel.setText("Level:" + level);
 				}
 			});
 		});
@@ -337,9 +339,13 @@ public class AsteroidsApplication extends Application {
 		statsGrid.add(new Text(":"), 1, 2);
 		statsGrid.add(new Text(String.valueOf(lives)), 2, 2);
 
-		statsGrid.add(new Text("High Score"), 0, 3);
+		statsGrid.add(new Text("High Score"), 0, 4);
+		statsGrid.add(new Text(":"), 1, 4);
+		statsGrid.add(new Text(String.valueOf(highScore)), 2, 4);
+
+		statsGrid.add(new Text("Level"), 0, 3);
 		statsGrid.add(new Text(":"), 1, 3);
-		statsGrid.add(new Text(String.valueOf(highScore)), 2, 3);
+		statsGrid.add(new Text(String.valueOf(level)), 2, 3);
 
 		for (Node node : statsGrid.getChildren()) {
 			if (node instanceof Text) {
@@ -456,6 +462,7 @@ public class AsteroidsApplication extends Application {
 		textS.setText("Score:" + score);
 		textP.setText("Asteroids Shot:" + points);
 		textL.setText("Lives:" + lives);
+		textLevel.setText("Level:" + level);
 
 		respawnShip();
 		paused = false;
