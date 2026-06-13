@@ -16,6 +16,7 @@ import com.asteroids.util.Constants;
 import com.asteroids.util.SoundPlayer;
 
 import javafx.animation.AnimationTimer;
+import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -33,6 +34,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class AsteroidsApplication extends Application {
 
@@ -54,6 +56,7 @@ public class AsteroidsApplication extends Application {
 	private Text textHS;
 	private int level = 1;
 	private Text textLevel;
+	private Text levelUpText;
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -97,6 +100,8 @@ public class AsteroidsApplication extends Application {
 		mainScreen.setTop(hbox);
 
 		createStarField(pane);
+
+		createLevelUp();
 
 		ship = new Ship(Constants.Size.WIDTH / 2, Constants.Size.HEIGHT / 2);
 		asteroids = new ArrayList<>();
@@ -256,7 +261,14 @@ public class AsteroidsApplication extends Application {
 					points++;
 					score += Constants.Value.SCORE_PER_ASTEROID;
 
+					int previousLevel = level;
+
 					level = (points / 10) + 1;
+
+					if (level > previousLevel) {
+						SoundPlayer.levelUp();
+						showLevelUp();
+					}
 
 					if (score > highScore) {
 						highScore = score;
@@ -363,7 +375,6 @@ public class AsteroidsApplication extends Application {
 		respawnButton.setOnAction(event -> {
 			respawnShip();
 			pane.getChildren().remove(shipDestroyedBox);
-			invulnerabilityFrames = 120;
 			SoundPlayer.play();
 			paused = false;
 		});
@@ -470,4 +481,31 @@ public class AsteroidsApplication extends Application {
 
 	}
 
+	private void createLevelUp() {
+		levelUpText = new Text();
+		levelUpText.setFill(Color.GOLD);
+		levelUpText.setStyle("-fx-font-size: 72px;" + "-fx-font-weight: bold;");
+
+		levelUpText.setStroke(Color.ORANGE);
+		levelUpText.setStrokeWidth(3);
+		levelUpText.setOpacity(0);
+
+		levelUpText.layoutXProperty().bind(pane.widthProperty()
+				.subtract(levelUpText.layoutBoundsProperty().get().getWidth()).divide(2).subtract(120));
+		levelUpText.layoutYProperty().bind(
+				pane.heightProperty().subtract(levelUpText.layoutBoundsProperty().get().getHeight()).divide(2).add(20));
+		pane.getChildren().add(levelUpText);
+	}
+
+	private void showLevelUp() {
+
+		levelUpText.setText("LEVEL " + level);
+
+		FadeTransition fade = new FadeTransition(Duration.seconds(2), levelUpText);
+
+		fade.setFromValue(0.8);
+		fade.setToValue(0.0);
+
+		fade.play();
+	}
 }
