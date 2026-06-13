@@ -24,10 +24,10 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -48,7 +48,6 @@ public class AsteroidsApplication extends Application {
 	private int invulnerabilityFrames = Constants.Value.INVULNERABILITY_FRAMES;
 	private List<Asteroid> asteroids;
 	private List<Projectile> projectiles;
-	private Pane pane;
 	private VBox shipDestroyedBox;
 	private Text textS;
 	private Text textP;
@@ -61,15 +60,25 @@ public class AsteroidsApplication extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 
-		BorderPane mainScreen = new BorderPane();
+		Pane gameLayer = new Pane();
 
-		pane = new Pane();
-		pane.setPrefSize(Constants.Size.WIDTH, Constants.Size.HEIGHT);
-		pane.setStyle("-fx-background-color: black;");
+		Pane hudLayer = new Pane();
+		hudLayer.setMouseTransparent(true);
+
+		StackPane effectsLayer = new StackPane();
+		effectsLayer.setMouseTransparent(true);
+
+		StackPane overlayLayer = new StackPane();
+		overlayLayer.setMouseTransparent(false);
+
+		StackPane gameArea = new StackPane(gameLayer, hudLayer, effectsLayer, overlayLayer);
+
+		gameLayer.setPrefSize(Constants.Size.WIDTH, Constants.Size.HEIGHT);
+		gameLayer.setStyle("-fx-background-color: black;");
 
 		Rectangle clip = new Rectangle(Constants.Size.WIDTH, Constants.Size.HEIGHT);
 
-		pane.setClip(clip);
+		gameLayer.setClip(clip);
 
 		textS = new Text("Score:" + score);
 		textP = new Text("Asteroids Shot:" + points);
@@ -97,29 +106,27 @@ public class AsteroidsApplication extends Application {
 		hbox.setAlignment(Pos.CENTER);
 		hbox.setStyle("-fx-background-color: limegreen;");
 
-		mainScreen.setTop(hbox);
+		hudLayer.getChildren().add(hbox);
 
-		createStarField(pane);
+		createStarField(gameLayer);
 
-		createLevelUp();
+		createLevelUp(effectsLayer);
 
 		ship = new Ship(Constants.Size.WIDTH / 2, Constants.Size.HEIGHT / 2);
 		asteroids = new ArrayList<>();
 		projectiles = new ArrayList<>();
 
-		pane.getChildren().add(ship.getShape());
+		gameLayer.getChildren().add(ship.getShape());
 
-		createInitialAsteroids(asteroids);
+		createInitialAsteroids(asteroids, gameLayer);
 
 		Map<KeyCode, Boolean> pressedKeys = new HashMap<>();
 
-		mainScreen.setCenter(pane);
+		Scene scene = new Scene(gameArea);
 
-		Scene scene = new Scene(mainScreen);
+		VBox pauseBox = pausedMenu();
 
-		VBox pauseBox = pausedMenu(scene);
-
-		pane.getChildren().add(pauseBox);
+		overlayLayer.getChildren().add(pauseBox);
 
 		scene.setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.SPACE) {
@@ -136,7 +143,7 @@ public class AsteroidsApplication extends Application {
 					projectile.setMovement(
 							projectile.getMovement().normalize().multiply(Constants.Value.PROJECTILE_SPEED));
 
-					pane.getChildren().add(projectile.getShape());
+					gameLayer.getChildren().add(projectile.getShape());
 				}
 			} else if (event.getCode() == KeyCode.ESCAPE) {
 
@@ -185,20 +192,20 @@ public class AsteroidsApplication extends Application {
 
 					if (lives <= 0) {
 						SoundPlayer.playGameOver();
-						pane.getChildren().add(shipDestroyed(stage, pane));
+						overlayLayer.getChildren().add(shipDestroyed(overlayLayer, gameLayer));
 					} else {
 						SoundPlayer.playCrash();
-						pane.getChildren().add(shipDestroyed(stage, pane));
+						overlayLayer.getChildren().add(shipDestroyed(overlayLayer, gameLayer));
 					}
 				}
 
 				handleProjectileCollisions(projectiles, asteroids, textS, textP, textL, textHS, textLevel);
 
-				removeDestroyedProjectiles(projectiles, pane);
+				removeDestroyedProjectiles(projectiles, gameLayer);
 
-				removeDestroyedAsteroids(asteroids, pane);
+				removeDestroyedAsteroids(asteroids, gameLayer);
 
-				spawnAsteroid(ship, asteroids, pane);
+				spawnAsteroid(ship, asteroids, gameLayer);
 
 			}
 		}.start();
@@ -211,11 +218,11 @@ public class AsteroidsApplication extends Application {
 		stage.show();
 	}
 
-	private void createInitialAsteroids(List<Asteroid> asteroids) {
+	private void createInitialAsteroids(List<Asteroid> asteroids, Pane gameLayer) {
 		for (int i = 0; i < Constants.Value.INITIAL_ASTEROIDS; i++) {
 			Asteroid a = new Asteroid(RANDOM.nextInt(Constants.Size.WIDTH), RANDOM.nextInt(Constants.Size.HEIGHT));
 			asteroids.add(a);
-			pane.getChildren().add(a.getShape());
+			gameLayer.getChildren().add(a.getShape());
 		}
 	}
 
@@ -285,24 +292,24 @@ public class AsteroidsApplication extends Application {
 		});
 	}
 
-	private void removeDestroyedProjectiles(List<Projectile> projectiles, Pane pane) {
+	private void removeDestroyedProjectiles(List<Projectile> projectiles, Pane gameLayer) {
 
 		projectiles.stream().filter(projectile -> !projectile.isAlive())
-				.forEach(projectile -> pane.getChildren().remove(projectile.getShape()));
+				.forEach(projectile -> gameLayer.getChildren().remove(projectile.getShape()));
 
 		projectiles.removeAll(
 				projectiles.stream().filter(projectile -> !projectile.isAlive()).collect(Collectors.toList()));
 	}
 
-	private void removeDestroyedAsteroids(List<Asteroid> asteroids, Pane pane) {
+	private void removeDestroyedAsteroids(List<Asteroid> asteroids, Pane gameLayer) {
 
 		asteroids.stream().filter(asteroid -> !asteroid.isAlive())
-				.forEach(asteroid -> pane.getChildren().remove(asteroid.getShape()));
+				.forEach(asteroid -> gameLayer.getChildren().remove(asteroid.getShape()));
 
 		asteroids.removeAll(asteroids.stream().filter(asteroid -> !asteroid.isAlive()).collect(Collectors.toList()));
 	}
 
-	private void spawnAsteroid(Ship ship, List<Asteroid> asteroids, Pane pane) {
+	private void spawnAsteroid(Ship ship, List<Asteroid> asteroids, Pane gameLayer) {
 
 		double spawnChance = Constants.Value.ASTEROID_SPAWN_CHANCE + ((level - 1) * 0.002);
 		if (RANDOM.nextDouble() < spawnChance) {
@@ -316,21 +323,21 @@ public class AsteroidsApplication extends Application {
 
 				asteroids.add(asteroid);
 				asteroid.setMovement(asteroid.getMovement().multiply(speedMultiplier));
-				pane.getChildren().add(asteroid.getShape());
+				gameLayer.getChildren().add(asteroid.getShape());
 			}
 		}
 	}
 
-	private void createStarField(Pane pane) {
+	private void createStarField(Pane gameLayer) {
 		for (int i = 0; i < 100; i++) {
 			Circle star = new Circle(RANDOM.nextInt(Constants.Size.WIDTH), RANDOM.nextInt(Constants.Size.HEIGHT), 1);
 			star.setFill(Color.WHITE);
 			star.setOpacity(0.3 + RANDOM.nextDouble() * 0.7);
-			pane.getChildren().add(star);
+			gameLayer.getChildren().add(star);
 		}
 	}
 
-	private VBox shipDestroyed(Stage stage, Pane pane) {
+	private VBox shipDestroyed(Pane overlayLayer, Pane gameLayer) {
 		Text shipDestroyedText = new Text("SHIP DESTROYED!");
 		shipDestroyedText.setStyle("-fx-font-size: 40px; -fx-fill: red;");
 
@@ -374,7 +381,7 @@ public class AsteroidsApplication extends Application {
 
 		respawnButton.setOnAction(event -> {
 			respawnShip();
-			pane.getChildren().remove(shipDestroyedBox);
+			gameLayer.getChildren().remove(shipDestroyedBox);
 			SoundPlayer.play();
 			paused = false;
 		});
@@ -385,7 +392,7 @@ public class AsteroidsApplication extends Application {
 				"-fx-font-size: 16px; -fx-background-color: limegreen; -fx-border-color: green; -fx-border-width: 2px; -fx-font-family: 'Consolas';");
 
 		restartButton.setOnAction(event -> {
-			resetGame();
+			resetGame(gameLayer);
 		});
 
 		shipDestroyedBox.getChildren().addAll(shipDestroyedText, statsGrid, restartButton);
@@ -395,15 +402,11 @@ public class AsteroidsApplication extends Application {
 		shipDestroyedBox.setAlignment(Pos.CENTER);
 		shipDestroyedBox.setStyle(
 				"-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
-		shipDestroyedBox.layoutXProperty()
-				.bind(stage.getScene().widthProperty().subtract(shipDestroyedBox.widthProperty()).divide(2));
-		shipDestroyedBox.layoutYProperty().bind(
-				stage.getScene().heightProperty().subtract(shipDestroyedBox.heightProperty()).divide(2).subtract(10));
 
 		return shipDestroyedBox;
 	}
 
-	private VBox pausedMenu(Scene scene) {
+	private VBox pausedMenu() {
 		VBox pausedMenu = new VBox();
 
 		Text pauseText = new Text("Pilot on a Break");
@@ -416,9 +419,6 @@ public class AsteroidsApplication extends Application {
 		pausedMenu.setAlignment(Pos.CENTER);
 		pausedMenu.setStyle(
 				"-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
-		pausedMenu.layoutXProperty().bind(scene.widthProperty().subtract(pausedMenu.widthProperty()).divide(2));
-		pausedMenu.layoutYProperty()
-				.bind(scene.heightProperty().subtract(pausedMenu.heightProperty()).divide(2).subtract(10));
 		pausedMenu.setVisible(false);
 
 		return pausedMenu;
@@ -454,16 +454,16 @@ public class AsteroidsApplication extends Application {
 
 	}
 
-	private void resetGame() {
-		pane.getChildren().remove(shipDestroyedBox);
+	private void resetGame(Pane gameLayer) {
+		gameLayer.getChildren().remove(shipDestroyedBox);
 
-		projectiles.forEach(p -> pane.getChildren().remove(p.getShape()));
+		projectiles.forEach(p -> gameLayer.getChildren().remove(p.getShape()));
 		projectiles.clear();
 
-		asteroids.forEach(a -> pane.getChildren().remove(a.getShape()));
+		asteroids.forEach(a -> gameLayer.getChildren().remove(a.getShape()));
 		asteroids.clear();
 
-		createInitialAsteroids(asteroids);
+		createInitialAsteroids(asteroids, gameLayer);
 
 		points = 0;
 		score = 0;
@@ -481,7 +481,7 @@ public class AsteroidsApplication extends Application {
 
 	}
 
-	private void createLevelUp() {
+	private void createLevelUp(StackPane effectsLayer) {
 		levelUpText = new Text();
 		levelUpText.setFill(Color.GOLD);
 		levelUpText.setStyle("-fx-font-size: 72px;" + "-fx-font-weight: bold;");
@@ -489,12 +489,10 @@ public class AsteroidsApplication extends Application {
 		levelUpText.setStroke(Color.ORANGE);
 		levelUpText.setStrokeWidth(3);
 		levelUpText.setOpacity(0);
+		
+		StackPane.setAlignment(levelUpText, Pos.CENTER);
 
-		levelUpText.layoutXProperty().bind(pane.widthProperty()
-				.subtract(levelUpText.layoutBoundsProperty().get().getWidth()).divide(2).subtract(120));
-		levelUpText.layoutYProperty().bind(
-				pane.heightProperty().subtract(levelUpText.layoutBoundsProperty().get().getHeight()).divide(2).add(20));
-		pane.getChildren().add(levelUpText);
+		effectsLayer.getChildren().add(levelUpText);
 	}
 
 	private void showLevelUp() {
@@ -502,7 +500,6 @@ public class AsteroidsApplication extends Application {
 		levelUpText.setText("LEVEL " + level);
 
 		FadeTransition fade = new FadeTransition(Duration.seconds(2), levelUpText);
-
 		fade.setFromValue(0.8);
 		fade.setToValue(0.0);
 
