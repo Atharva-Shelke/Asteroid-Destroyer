@@ -38,24 +38,33 @@ import javafx.util.Duration;
 
 public class AsteroidsApplication extends Application {
 
+	// Initializations
 	private static final Random RANDOM = new Random();
-	private int points = 0;
-	private boolean paused = false;
-	private int score = 0;
-	private int highScore = loadHighScore();
-	private int lives = 3;
-	private Ship ship;
 	private int invulnerabilityFrames = Constants.Value.INVULNERABILITY_FRAMES;
-	private List<Asteroid> asteroids;
-	private List<Projectile> projectiles;
-	private VBox shipDestroyedBox;
-	private Text textS;
-	private Text textP;
-	private Text textL;
-	private Text textHS;
+
+	// Game State
+	private boolean paused = false;
+	private int points = 0;
+	private int score = 0;
+	private int highScore;
+	private int lives = 3;
 	private int level = 1;
-	private Text textLevel;
-	private Text levelUpText;
+
+	// Game Objects
+	private final Ship ship = new Ship(Constants.Size.WIDTH / 2, Constants.Size.HEIGHT / 2);
+	private final List<Asteroid> asteroids = new ArrayList<>();
+	private final List<Projectile> projectiles = new ArrayList<>();
+
+	// HUD
+	private final Text scoreText = new Text();
+	private final Text pointsText = new Text();
+	private final Text livesText = new Text();
+	private final Text highText = new Text();
+	private final Text levelText = new Text();
+
+	// Overlays
+	private VBox shipDestroyedBox;
+	private final Text levelUpText = new Text();
 
 	@Override
 	public void start(Stage stage) throws Exception {
@@ -76,24 +85,26 @@ public class AsteroidsApplication extends Application {
 		gameLayer.setPrefSize(Constants.Size.WIDTH, Constants.Size.HEIGHT);
 		gameLayer.setStyle("-fx-background-color: black;");
 
+		highScore = loadHighScore();
+
 		Rectangle clip = new Rectangle(Constants.Size.WIDTH, Constants.Size.HEIGHT);
 
 		gameLayer.setClip(clip);
 
-		textS = new Text("Score:" + score);
-		textP = new Text("Asteroids Shot:" + points);
-		textL = new Text("Lives:" + lives);
-		textHS = new Text("High Score:" + highScore);
-		textLevel = new Text("Level:" + level);
+		scoreText.setText("Score:" + score);
+		pointsText.setText("Asteroids Shot:" + points);
+		livesText.setText("Lives:" + lives);
+		highText.setText("High Score:" + highScore);
+		levelText.setText("Level:" + level);
 
 		GridPane hud = new GridPane();
 		hud.setHgap(20);
 
-		hud.add(textS, 0, 0);
-		hud.add(textP, 1, 0);
-		hud.add(textL, 2, 0);
-		hud.add(textHS, 4, 0);
-		hud.add(textLevel, 3, 0);
+		hud.add(scoreText, 0, 0);
+		hud.add(pointsText, 1, 0);
+		hud.add(livesText, 2, 0);
+		hud.add(highText, 4, 0);
+		hud.add(levelText, 3, 0);
 
 		for (Node node : hud.getChildren()) {
 			if (node instanceof Text) {
@@ -111,14 +122,11 @@ public class AsteroidsApplication extends Application {
 		createStarField(gameLayer);
 
 		createLevelUp(effectsLayer);
-
-		ship = new Ship(Constants.Size.WIDTH / 2, Constants.Size.HEIGHT / 2);
-		asteroids = new ArrayList<>();
-		projectiles = new ArrayList<>();
+		showLevelUp();
 
 		gameLayer.getChildren().add(ship.getShape());
 
-		createInitialAsteroids(asteroids, gameLayer);
+		createInitialAsteroids(gameLayer);
 
 		Map<KeyCode, Boolean> pressedKeys = new HashMap<>();
 
@@ -149,7 +157,6 @@ public class AsteroidsApplication extends Application {
 
 				paused = !paused;
 				pauseBox.setVisible(paused);
-				pauseBox.toFront();
 				if (paused) {
 					SoundPlayer.playPause();
 				} else {
@@ -181,31 +188,32 @@ public class AsteroidsApplication extends Application {
 					ship.getShape().setOpacity(1.0);
 				}
 
-				handleInput(ship, pressedKeys);
+				handleInput(pressedKeys);
 
-				moveObjects(ship, asteroids, projectiles);
+				moveObjects();
 
-				if (invulnerabilityFrames <= 0 && shipCollided(ship, asteroids)) {
+				if (invulnerabilityFrames <= 0 && shipCollided()) {
 					paused = true;
 					lives--;
-					textL.setText("Lives:" + lives);
+					livesText.setText("Lives:" + lives);
+
+					overlayLayer.getChildren().add(shipDestroyed(overlayLayer, gameLayer));
 
 					if (lives <= 0) {
 						SoundPlayer.playGameOver();
-						overlayLayer.getChildren().add(shipDestroyed(overlayLayer, gameLayer));
+
 					} else {
 						SoundPlayer.playCrash();
-						overlayLayer.getChildren().add(shipDestroyed(overlayLayer, gameLayer));
 					}
 				}
 
-				handleProjectileCollisions(projectiles, asteroids, textS, textP, textL, textHS, textLevel);
+				handleProjectileCollisions();
 
-				removeDestroyedProjectiles(projectiles, gameLayer);
+				removeDestroyedProjectiles(gameLayer);
 
-				removeDestroyedAsteroids(asteroids, gameLayer);
+				removeDestroyedAsteroids(gameLayer);
 
-				spawnAsteroid(ship, asteroids, gameLayer);
+				spawnAsteroid(gameLayer);
 
 			}
 		}.start();
@@ -218,7 +226,7 @@ public class AsteroidsApplication extends Application {
 		stage.show();
 	}
 
-	private void createInitialAsteroids(List<Asteroid> asteroids, Pane gameLayer) {
+	private void createInitialAsteroids(Pane gameLayer) {
 		for (int i = 0; i < Constants.Value.INITIAL_ASTEROIDS; i++) {
 			Asteroid a = new Asteroid(RANDOM.nextInt(Constants.Size.WIDTH), RANDOM.nextInt(Constants.Size.HEIGHT));
 			asteroids.add(a);
@@ -226,7 +234,7 @@ public class AsteroidsApplication extends Application {
 		}
 	}
 
-	private void handleInput(Ship ship, Map<KeyCode, Boolean> pressedKeys) {
+	private void handleInput(Map<KeyCode, Boolean> pressedKeys) {
 
 		if (pressedKeys.getOrDefault(KeyCode.LEFT, false)) {
 			ship.turnLeft();
@@ -241,20 +249,19 @@ public class AsteroidsApplication extends Application {
 		}
 	}
 
-	private void moveObjects(Ship ship, List<Asteroid> asteroids, List<Projectile> projectiles) {
+	private void moveObjects() {
 
 		ship.move();
 		asteroids.forEach(Asteroid::move);
 		projectiles.forEach(Projectile::move);
 	}
 
-	private boolean shipCollided(Ship ship, List<Asteroid> asteroids) {
+	private boolean shipCollided() {
 
 		return asteroids.stream().anyMatch(ship::collide);
 	}
 
-	private void handleProjectileCollisions(List<Projectile> projectiles, List<Asteroid> asteroids, Text scoreText,
-			Text pointsText, Text livesText, Text highScoreText, Text textLevel) {
+	private void handleProjectileCollisions() {
 
 		projectiles.forEach(projectile -> {
 			asteroids.forEach(asteroid -> {
@@ -285,14 +292,14 @@ public class AsteroidsApplication extends Application {
 					scoreText.setText("Score:" + score);
 					pointsText.setText("Asteroids Shot:" + points);
 					livesText.setText("Lives:" + lives);
-					highScoreText.setText("High Score:" + highScore);
-					textLevel.setText("Level:" + level);
+					highText.setText("High Score:" + highScore);
+					levelText.setText("Level:" + level);
 				}
 			});
 		});
 	}
 
-	private void removeDestroyedProjectiles(List<Projectile> projectiles, Pane gameLayer) {
+	private void removeDestroyedProjectiles(Pane gameLayer) {
 
 		projectiles.stream().filter(projectile -> !projectile.isAlive())
 				.forEach(projectile -> gameLayer.getChildren().remove(projectile.getShape()));
@@ -301,7 +308,7 @@ public class AsteroidsApplication extends Application {
 				projectiles.stream().filter(projectile -> !projectile.isAlive()).collect(Collectors.toList()));
 	}
 
-	private void removeDestroyedAsteroids(List<Asteroid> asteroids, Pane gameLayer) {
+	private void removeDestroyedAsteroids(Pane gameLayer) {
 
 		asteroids.stream().filter(asteroid -> !asteroid.isAlive())
 				.forEach(asteroid -> gameLayer.getChildren().remove(asteroid.getShape()));
@@ -309,7 +316,7 @@ public class AsteroidsApplication extends Application {
 		asteroids.removeAll(asteroids.stream().filter(asteroid -> !asteroid.isAlive()).collect(Collectors.toList()));
 	}
 
-	private void spawnAsteroid(Ship ship, List<Asteroid> asteroids, Pane gameLayer) {
+	private void spawnAsteroid(Pane gameLayer) {
 
 		double spawnChance = Constants.Value.ASTEROID_SPAWN_CHANCE + ((level - 1) * 0.002);
 		if (RANDOM.nextDouble() < spawnChance) {
@@ -463,26 +470,27 @@ public class AsteroidsApplication extends Application {
 		asteroids.forEach(a -> gameLayer.getChildren().remove(a.getShape()));
 		asteroids.clear();
 
-		createInitialAsteroids(asteroids, gameLayer);
+		createInitialAsteroids(gameLayer);
 
 		points = 0;
 		score = 0;
 		lives = 3;
 		level = 1;
 
-		textS.setText("Score:" + score);
-		textP.setText("Asteroids Shot:" + points);
-		textL.setText("Lives:" + lives);
-		textLevel.setText("Level:" + level);
+		scoreText.setText("Score:" + score);
+		pointsText.setText("Asteroids Shot:" + points);
+		livesText.setText("Lives:" + lives);
+		levelText.setText("Level:" + level);
 
 		respawnShip();
 		paused = false;
+
+		showLevelUp();
 		SoundPlayer.play();
 
 	}
 
 	private void createLevelUp(StackPane effectsLayer) {
-		levelUpText = new Text();
 		levelUpText.setFill(Color.GOLD);
 		levelUpText.setStyle("-fx-font-size: 72px;" + "-fx-font-weight: bold;");
 
@@ -502,7 +510,6 @@ public class AsteroidsApplication extends Application {
 		FadeTransition fade = new FadeTransition(Duration.seconds(2), levelUpText);
 		fade.setFromValue(0.8);
 		fade.setToValue(0.0);
-
 		fade.play();
 	}
 }
