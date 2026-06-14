@@ -87,37 +87,7 @@ public class AsteroidsApplication extends Application {
 
 		highScore = loadHighScore();
 
-		Rectangle clip = new Rectangle(Constants.Size.WIDTH, Constants.Size.HEIGHT);
-
-		gameLayer.setClip(clip);
-
-		scoreText.setText("Score:" + score);
-		pointsText.setText("Asteroids Shot:" + points);
-		livesText.setText("Lives:" + lives);
-		highText.setText("High Score:" + highScore);
-		levelText.setText("Level:" + level);
-
-		GridPane hud = new GridPane();
-		hud.setHgap(20);
-
-		hud.add(scoreText, 0, 0);
-		hud.add(pointsText, 1, 0);
-		hud.add(livesText, 2, 0);
-		hud.add(highText, 4, 0);
-		hud.add(levelText, 3, 0);
-
-		for (Node node : hud.getChildren()) {
-			if (node instanceof Text) {
-				((Text) node).setStyle("-fx-font-size: 17px;" + "-fx-fill: blue;" + "-fx-font-family: 'Consolas';");
-			}
-		}
-
-		HBox hbox = new HBox();
-		hbox.getChildren().addAll(hud);
-		hbox.setAlignment(Pos.CENTER);
-		hbox.setStyle("-fx-background-color: limegreen;");
-
-		hudLayer.getChildren().add(hbox);
+		createHUD(hudLayer);
 
 		createStarField(gameLayer);
 
@@ -197,7 +167,7 @@ public class AsteroidsApplication extends Application {
 				if (invulnerabilityFrames <= 0 && shipCollided()) {
 					paused = true;
 					lives--;
-					livesText.setText("Lives:" + lives);
+					updateHUD();
 
 					overlayLayer.getChildren().add(shipDestroyed(overlayLayer, gameLayer));
 
@@ -477,10 +447,7 @@ public class AsteroidsApplication extends Application {
 		lives = 3;
 		level = 1;
 
-		scoreText.setText("Score:" + score);
-		pointsText.setText("Asteroids Shot:" + points);
-		livesText.setText("Lives:" + lives);
-		levelText.setText("Level:" + level);
+		updateHUD();
 
 		respawnShip();
 		paused = false;
@@ -507,5 +474,48 @@ public class AsteroidsApplication extends Application {
 		fade.setFromValue(0.8);
 		fade.setToValue(0.0);
 		fade.play();
+	}
+
+	private void createHUD(Pane hudLayer) {
+
+		updateHUD();
+
+		Text title = new Text("ASTEROID DESTROYER");
+
+		livesText.getStyleClass().add("hud-text");
+		levelText.getStyleClass().add("hud-text");
+		scoreText.getStyleClass().add("hud-text");
+		highText.getStyleClass().add("hud-text");
+		pointsText.getStyleClass().add("hud-text");
+
+		title.getStyleClass().add("game-title");
+
+		livesText.setTranslateX(15);
+		livesText.setTranslateY(25);
+
+		levelText.setTranslateX(Constants.Size.WIDTH - 95);
+		levelText.setTranslateY(25);
+
+		scoreText.setTranslateX(15);
+		scoreText.setTranslateY(Constants.Size.HEIGHT - 15);
+
+		highText.setTranslateX(Constants.Size.WIDTH - 110);
+		highText.setTranslateY(Constants.Size.HEIGHT - 15);
+
+		pointsText.setTranslateX(Constants.Size.WIDTH / 2 - 95);
+		pointsText.setTranslateY(Constants.Size.HEIGHT - 15);
+
+		title.setTranslateX(Constants.Size.WIDTH / 2 - 110);
+		title.setTranslateY(25);
+
+		hudLayer.getChildren().addAll(livesText, levelText, scoreText, highText, pointsText, title);
+	}
+
+	private void updateHUD() {
+		scoreText.setText("Score: " + score);
+		pointsText.setText(String.format("Asteroids Shot: %02d", points));
+		livesText.setText("Lives: " + lives);
+		highText.setText(String.format("High: %04d" , highScore));
+		levelText.setText(String.format("Level: %02d", level));
 	}
 }
