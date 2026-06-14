@@ -1,0 +1,94 @@
+/* COMMON FONT */
+
+.root {
+	-fx-font-family: "Consolas";
+}
+
+/* HUD */
+
+.hud-text {
+	-fx-font-size: 18px;
+	-fx-fill: white;
+}
+
+.game-title {
+	-fx-font-size: 24px;
+	-fx-stroke: limegreen;
+	-fx-stroke-width: 1;
+}
+
+/* LEVEL UP */
+
+.level-up-text {
+	-fx-font-size: 72px;
+	-fx-font-weight: bold;
+	-fx-fill: gold;
+	-fx-stroke: orange;
+	-fx-stroke-width: 3;
+}
+
+/* OVERLAY BOX */
+
+.overlay-box {
+	-fx-background-color: rgba(30, 30, 30, 0.85);
+	-fx-padding: 25;
+	-fx-border-color: white;
+	-fx-border-width: 2;
+}
+
+/* PAUSE MENU */
+
+.pause-title {
+	-fx-font-size: 60px;
+	-fx-fill: yellow;
+}
+
+.pause-message {
+	-fx-font-size: 30px;
+	-fx-fill: orange;
+}
+
+/* SHIP DESTROYED / GAME OVER */
+
+.dialog-title {
+	-fx-font-size: 50px;
+	-fx-fill: darkred;
+	-fx-stroke-width: 2;
+}
+
+.dialog-stats {
+	-fx-font-size: 28px;
+	-fx-fill: white;
+}
+
+/* RESPAWN BUTTON */
+
+.respawn-button {
+	-fx-background-color: #222222;
+	-fx-text-fill: limegreen;
+	-fx-border-color: limegreen;
+	-fx-font-size: 16px;
+	-fx-border-width: 2px;
+}
+
+.respawn-button:hover,
+.respawn-button:focused {
+	-fx-background-color: limegreen;
+	-fx-text-fill: black;
+}
+
+/* RESTART BUTTON */
+
+.restart-button {
+	-fx-background-color: #222222;
+	-fx-text-fill: tomato;
+	-fx-border-color: tomato;
+	-fx-font-size: 16px;
+	-fx-border-width: 2px;
+}
+
+.restart-button:hover,
+.restart-button:focused {
+	-fx-background-color: tomato;
+	-fx-text-fill: black;
+}

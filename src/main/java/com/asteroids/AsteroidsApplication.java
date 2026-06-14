@@ -132,6 +132,8 @@ public class AsteroidsApplication extends Application {
 
 		Scene scene = new Scene(gameArea);
 
+		scene.getStylesheets().add(getClass().getResource("/style/game.css").toExternalForm());
+
 		VBox pauseBox = pausedMenu();
 
 		overlayLayer.getChildren().add(pauseBox);
@@ -374,8 +376,8 @@ public class AsteroidsApplication extends Application {
 		statsGrid.add(new Text(String.valueOf(level)), 2, 3);
 
 		for (Node node : statsGrid.getChildren()) {
-			if (node instanceof Text) {
-				((Text) node).setStyle("-fx-font-size: 28px;" + "-fx-fill: white;" + "-fx-font-family: 'Consolas';");
+			if (node instanceof Text text) {
+				text.getStyleClass().add("dialog-stats");
 			}
 		}
 
@@ -407,8 +409,7 @@ public class AsteroidsApplication extends Application {
 			shipDestroyedBox.getChildren().addAll(respawnButton);
 		}
 		shipDestroyedBox.setAlignment(Pos.CENTER);
-		shipDestroyedBox.setStyle(
-				"-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
+		shipDestroyedBox.getStyleClass().add("overlay-box");
 
 		return shipDestroyedBox;
 	}
@@ -417,15 +418,14 @@ public class AsteroidsApplication extends Application {
 		VBox pausedMenu = new VBox();
 
 		Text pauseText = new Text("Pilot on a Break");
-		pauseText.setStyle("-fx-font-size: 40px; -fx-fill: yellow; -fx-font-family: 'Consolas';");
+		pauseText.getStyleClass().add("pause-title");
 
 		Text pauseMsg = new Text("Press ESC to resume");
-		pauseMsg.setStyle("-fx-font-size: 20px; -fx-fill: orange; -fx-font-family: 'Consolas';");
+		pauseMsg.getStyleClass().add("pause-message");
 
 		pausedMenu.getChildren().addAll(pauseText, pauseMsg);
 		pausedMenu.setAlignment(Pos.CENTER);
-		pausedMenu.setStyle(
-				"-fx-background-color: rgba(30,30,30,0.85); -fx-padding: 25; -fx-border-color: white; -fx-border-width: 2;");
+		pausedMenu.getStyleClass().add("overlay-box");
 		pausedMenu.setVisible(false);
 
 		return pausedMenu;
@@ -491,13 +491,9 @@ public class AsteroidsApplication extends Application {
 	}
 
 	private void createLevelUp(StackPane effectsLayer) {
-		levelUpText.setFill(Color.GOLD);
-		levelUpText.setStyle("-fx-font-size: 72px;" + "-fx-font-weight: bold;");
-
-		levelUpText.setStroke(Color.ORANGE);
-		levelUpText.setStrokeWidth(3);
+		levelUpText.getStyleClass().add("level-up-text");
 		levelUpText.setOpacity(0);
-		
+
 		StackPane.setAlignment(levelUpText, Pos.CENTER);
 
 		effectsLayer.getChildren().add(levelUpText);
