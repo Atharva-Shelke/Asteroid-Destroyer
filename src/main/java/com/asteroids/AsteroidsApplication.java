@@ -110,20 +110,10 @@ public class AsteroidsApplication extends Application {
 
 		scene.setOnKeyPressed(event -> {
 			if (event.getCode() == KeyCode.SPACE) {
-				if (projectiles.size() < Constants.Value.MAX_PROJECTILES) {
-					// we shoot
-					Projectile projectile = new Projectile((int) ship.getShape().getTranslateX(),
-							(int) ship.getShape().getTranslateY());
-					projectile.getShape().setRotate(ship.getShape().getRotate());
-					projectiles.add(projectile);
-
-					SoundPlayer.playShoot();
-
-					projectile.accelerate();
-					projectile.setMovement(
-							projectile.getMovement().normalize().multiply(Constants.Value.PROJECTILE_SPEED));
-
-					gameLayer.getChildren().add(projectile.getShape());
+				if (paused) {
+					event.consume();
+				} else if (projectiles.size() < Constants.Value.MAX_PROJECTILES) {
+					shootProjectile(gameLayer);
 				}
 			} else if (event.getCode() == KeyCode.ESCAPE) {
 
@@ -517,5 +507,19 @@ public class AsteroidsApplication extends Application {
 		livesText.setText("Lives: " + lives);
 		highText.setText(String.format("High: %04d" , highScore));
 		levelText.setText(String.format("Level: %02d", level));
+	}
+
+	private void shootProjectile(Pane gameLayer) {
+		Projectile projectile = new Projectile((int) ship.getShape().getTranslateX(),
+				(int) ship.getShape().getTranslateY());
+		projectile.getShape().setRotate(ship.getShape().getRotate());
+		projectiles.add(projectile);
+
+		SoundPlayer.playShoot();
+
+		projectile.accelerate();
+		projectile.setMovement(projectile.getMovement().normalize().multiply(Constants.Value.PROJECTILE_SPEED));
+
+		gameLayer.getChildren().add(projectile.getShape());
 	}
 }
