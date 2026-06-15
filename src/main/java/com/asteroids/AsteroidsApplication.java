@@ -25,13 +25,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -234,28 +232,9 @@ public class AsteroidsApplication extends Application {
 
 					projectile.setAlive(false);
 					asteroid.setAlive(false);
-					points++;
-					score += Constants.Value.SCORE_PER_ASTEROID;
 
-					int previousLevel = level;
+					asteroidDestroyed();
 
-					level = (points / 10) + 1;
-
-					if (level > previousLevel) {
-						SoundPlayer.levelUp();
-						showLevelUp();
-					}
-
-					if (score > highScore) {
-						highScore = score;
-						saveHighScore(highScore);
-					}
-
-					scoreText.setText("Score:" + score);
-					pointsText.setText("Asteroids Shot:" + points);
-					livesText.setText("Lives:" + lives);
-					highText.setText("High Score:" + highScore);
-					levelText.setText("Level:" + level);
 				}
 			});
 		});
@@ -505,7 +484,7 @@ public class AsteroidsApplication extends Application {
 		scoreText.setText("Score: " + score);
 		pointsText.setText(String.format("Asteroids Shot: %02d", points));
 		livesText.setText("Lives: " + lives);
-		highText.setText(String.format("High: %04d" , highScore));
+		highText.setText(String.format("High: %04d", highScore));
 		levelText.setText(String.format("Level: %02d", level));
 	}
 
@@ -521,5 +500,26 @@ public class AsteroidsApplication extends Application {
 		projectile.setMovement(projectile.getMovement().normalize().multiply(Constants.Value.PROJECTILE_SPEED));
 
 		gameLayer.getChildren().add(projectile.getShape());
+	}
+
+	private void asteroidDestroyed() {
+		points++;
+		score += Constants.Value.SCORE_PER_ASTEROID;
+
+		int previousLevel = level;
+
+		level = (points / 10) + 1;
+
+		if (level > previousLevel) {
+			SoundPlayer.levelUp();
+			showLevelUp();
+		}
+
+		if (score > highScore) {
+			highScore = score;
+			saveHighScore(highScore);
+		}
+
+		updateHUD();
 	}
 }
