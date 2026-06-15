@@ -410,16 +410,14 @@ public class AsteroidsApplication extends Application {
 		asteroids.forEach(a -> gameLayer.getChildren().remove(a.getShape()));
 		asteroids.clear();
 
+		resetStats();
+
 		createInitialAsteroids(gameLayer);
 
-		points = 0;
-		score = 0;
-		lives = 3;
-		level = 1;
+		respawnShip();
 
 		updateHUD();
 
-		respawnShip();
 		paused = false;
 
 		showLevelUp();
@@ -522,5 +520,12 @@ public class AsteroidsApplication extends Application {
 		}
 
 		updateHUD();
+	}
+
+	private void resetStats() {
+		points = 0;
+		score = 0;
+		lives = 3;
+		level = 1;
 	}
 }
