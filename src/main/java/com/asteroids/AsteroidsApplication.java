@@ -242,19 +242,20 @@ public class AsteroidsApplication extends Application {
 
 	private void removeDestroyedProjectiles(Pane gameLayer) {
 
-		projectiles.stream().filter(projectile -> !projectile.isAlive())
-				.forEach(projectile -> gameLayer.getChildren().remove(projectile.getShape()));
+		List<Projectile> destroyedP = projectiles.stream().filter(p -> !p.isAlive()).toList();
 
-		projectiles.removeAll(
-				projectiles.stream().filter(projectile -> !projectile.isAlive()).collect(Collectors.toList()));
+		destroyedP.forEach(p -> gameLayer.getChildren().remove(p.getShape()));
+
+		projectiles.removeAll(destroyedP);
 	}
 
 	private void removeDestroyedAsteroids(Pane gameLayer) {
 
-		asteroids.stream().filter(asteroid -> !asteroid.isAlive())
-				.forEach(asteroid -> gameLayer.getChildren().remove(asteroid.getShape()));
+		List<Asteroid> destroyedA = asteroids.stream().filter(a -> !a.isAlive()).toList();
 
-		asteroids.removeAll(asteroids.stream().filter(asteroid -> !asteroid.isAlive()).collect(Collectors.toList()));
+		destroyedA.forEach(a -> gameLayer.getChildren().remove(a.getShape()));
+
+		asteroids.removeAll(destroyedA);
 	}
 
 	private void spawnAsteroid(Pane gameLayer) {
