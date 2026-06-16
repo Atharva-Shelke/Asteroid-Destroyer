@@ -157,7 +157,7 @@ public class AsteroidsApplication extends Application {
 					lives--;
 					updateHUD();
 
-					overlayLayer.getChildren().add(shipDestroyed(overlayLayer, gameLayer));
+					overlayLayer.getChildren().add(shipDestroyedMenu(overlayLayer, gameLayer));
 
 					if (lives <= 0) {
 						SoundPlayer.playGameOver();
@@ -286,9 +286,16 @@ public class AsteroidsApplication extends Application {
 		}
 	}
 
-	private VBox shipDestroyed(Pane overlayLayer, Pane gameLayer) {
-		Text shipDestroyedText = new Text("SHIP DESTROYED!");
-		shipDestroyedText.setStyle("-fx-font-size: 40px; -fx-fill: red;");
+	private VBox shipDestroyedMenu(Pane overlayLayer, Pane gameLayer) {
+		Text shipDestroyedText = new Text();
+		if (lives > 0) {
+			shipDestroyedText.setText("VESSEL CRASHED");
+			shipDestroyedText.setStroke(Color.ORANGE);
+		} else {
+			shipDestroyedText.setText("GAME OVER");
+			shipDestroyedText.setStroke(Color.RED);
+		}
+		shipDestroyedText.getStyleClass().add("dialog-title");
 
 		GridPane statsGrid = new GridPane();
 		statsGrid.setHgap(10);
