@@ -302,25 +302,15 @@ public class AsteroidsApplication extends Application {
 		statsGrid.setVgap(10);
 		statsGrid.setAlignment(Pos.CENTER);
 
-		statsGrid.add(new Text("Asteroids Shot"), 0, 0);
-		statsGrid.add(new Text(":"), 1, 0);
-		statsGrid.add(new Text(String.valueOf(points)), 2, 0);
+		addStatRow(statsGrid, 0, "Asteroids Shot", String.valueOf(points));
 
-		statsGrid.add(new Text("Score"), 0, 1);
-		statsGrid.add(new Text(":"), 1, 1);
-		statsGrid.add(new Text(String.valueOf(score)), 2, 1);
+		addStatRow(statsGrid, 1, "Score", String.valueOf(score));
 
-		statsGrid.add(new Text("Lives"), 0, 2);
-		statsGrid.add(new Text(":"), 1, 2);
-		statsGrid.add(new Text(String.valueOf(lives)), 2, 2);
+		addStatRow(statsGrid, 2, "Lives", String.valueOf(lives));
 
-		statsGrid.add(new Text("High Score"), 0, 4);
-		statsGrid.add(new Text(":"), 1, 4);
-		statsGrid.add(new Text(String.valueOf(highScore)), 2, 4);
+		addStatRow(statsGrid, 3, "Level", String.valueOf(level));
 
-		statsGrid.add(new Text("Level"), 0, 3);
-		statsGrid.add(new Text(":"), 1, 3);
-		statsGrid.add(new Text(String.valueOf(level)), 2, 3);
+		addStatRow(statsGrid, 4, "Highscore", String.valueOf(highScore));
 
 		for (Node node : statsGrid.getChildren()) {
 			if (node instanceof Text text) {
@@ -534,5 +524,11 @@ public class AsteroidsApplication extends Application {
 		score = 0;
 		lives = 3;
 		level = 1;
+	}
+
+	private void addStatRow(GridPane grid, int row, String label, String value) {
+		grid.add(new Text(label), 0, row);
+		grid.add(new Text(":"), 1, row);
+		grid.add(new Text(value), 2, row);
 	}
 }
