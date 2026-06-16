@@ -25,6 +25,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -320,6 +321,11 @@ public class AsteroidsApplication extends Application {
 
 		shipDestroyedBox = new VBox(10);
 
+		HBox buttonBox = new HBox(15);
+
+		buttonBox.setAlignment(Pos.CENTER);
+		buttonBox.setSpacing(50);
+
 		Button respawnButton = new Button("Respawn");
 		respawnButton.setPrefSize(140, 45);
 		respawnButton.setStyle(
@@ -341,9 +347,12 @@ public class AsteroidsApplication extends Application {
 			resetGame(gameLayer);
 		});
 
-		shipDestroyedBox.getChildren().addAll(shipDestroyedText, statsGrid, restartButton);
+		buttonBox.getChildren().addAll(respawnButton, restartButton);
+
 		if (lives > 0) {
-			shipDestroyedBox.getChildren().addAll(respawnButton);
+			shipDestroyedBox.getChildren().addAll(shipDestroyedText, statsGrid, buttonBox);
+		} else {
+			shipDestroyedBox.getChildren().addAll(shipDestroyedText, statsGrid, restartButton);
 		}
 		shipDestroyedBox.setAlignment(Pos.CENTER);
 		shipDestroyedBox.getStyleClass().add("overlay-box");
