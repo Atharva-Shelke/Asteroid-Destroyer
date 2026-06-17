@@ -71,7 +71,6 @@
 	-fx-border-width: 2px;
 }
 
-.respawn-button:hover,
 .respawn-button:focused {
 	-fx-background-color: limegreen;
 	-fx-text-fill: black;
@@ -87,7 +86,6 @@
 	-fx-border-width: 2px;
 }
 
-.restart-button:hover,
 .restart-button:focused {
 	-fx-background-color: tomato;
 	-fx-text-fill: black;
