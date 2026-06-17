@@ -326,17 +326,7 @@ public class AsteroidsApplication extends Application {
 		buttonBox.setAlignment(Pos.CENTER);
 		buttonBox.setSpacing(50);
 
-		Button respawnButton = new Button("Respawn");
-		respawnButton.setPrefSize(140, 45);
-		respawnButton.setStyle(
-				"-fx-font-size: 16px; -fx-background-color: limegreen; -fx-border-color: green; -fx-border-width: 2px; -fx-font-family: 'Consolas';");
-
-		respawnButton.setOnAction(event -> {
-			respawnShip();
-			gameLayer.getChildren().remove(shipDestroyedBox);
-			SoundPlayer.play();
-			paused = false;
-		});
+		Button respawnButton = createRespawnButton(overlayLayer);
 
 		Button restartButton = new Button("Restart");
 		restartButton.setPrefSize(140, 45);
@@ -539,5 +529,22 @@ public class AsteroidsApplication extends Application {
 		grid.add(new Text(label), 0, row);
 		grid.add(new Text(":"), 1, row);
 		grid.add(new Text(value), 2, row);
+	}
+
+	private Button createRespawnButton(Pane overlayLayer) {
+		Button respawnButton = new Button("RESPAWN");
+		respawnButton.setPrefSize(140, 45);
+		respawnButton.getStyleClass().add("respawn-button");
+		respawnButton.setDisable(true);
+		respawnButton.setMouseTransparent(true);
+
+		respawnButton.setOnAction(event -> {
+			respawnShip();
+			overlayLayer.getChildren().remove(shipDestroyedBox);
+			SoundPlayer.play();
+			paused = false;
+		});
+
+		return respawnButton;
 	}
 }
