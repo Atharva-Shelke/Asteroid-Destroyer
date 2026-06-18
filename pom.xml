@@ -37,7 +37,7 @@
 
 				<configuration>
 					<mainClass>
-						com.asteroids.asteroid-destroyer.AsteroidDestroyerApplication
+						com.asteroids.Launcher
 					</mainClass>
 				</configuration>
 			</plugin>
