@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
-
 import com.asteroids.model.Asteroid;
 import com.asteroids.model.Projectile;
 import com.asteroids.model.Ship;
@@ -17,9 +15,11 @@ import com.asteroids.util.SoundPlayer;
 
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -100,6 +100,8 @@ public class AsteroidsApplication extends Application {
 		Map<KeyCode, Boolean> pressedKeys = new HashMap<>();
 
 		Scene scene = new Scene(gameArea);
+
+		scene.setCursor(Cursor.NONE);
 
 		scene.getStylesheets().add(getClass().getResource("/style/game.css").toExternalForm());
 
@@ -331,6 +333,15 @@ public class AsteroidsApplication extends Application {
 		Button restartButton = createRestartButton(overlayLayer, gameLayer);
 
 		buttonBox.getChildren().addAll(respawnButton, restartButton);
+
+		PauseTransition delay = new PauseTransition(Duration.seconds(2));
+
+		delay.setOnFinished(event -> {
+			respawnButton.setDisable(false);
+			restartButton.setDisable(false);
+		});
+
+		delay.play();
 
 		if (lives > 0) {
 			shipDestroyedBox.getChildren().addAll(shipDestroyedText, statsGrid, buttonBox);
