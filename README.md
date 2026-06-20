@@ -1,4 +1,4 @@
-﻿# ☄️ Asteroid Destroyer using JavaFX
+﻿# ☄️ Asteroid Destroyer Game
 
 ![Java](https://img.shields.io/badge/Java-17-orange)
 ![JavaFX](https://img.shields.io/badge/JavaFX-GUI-blue)
@@ -111,6 +111,12 @@ Run in root folder:
 ```text
 mvn javafx:run
 ```
+
+---
+
+## 🎥 Demo Video
+
+https://github.com/user-attachments/assets/89ee757f-9e55-4ae0-b620-c089d30e6222
 
 ---
 
